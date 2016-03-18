@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "FiddlerCoreAPI\Samp
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "myFiddlerEx01", "myFiddlerEx01\myFiddlerEx01.vbproj", "{3BDEB459-8E5E-4861-8AC4-1249B312ECED}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "myFiddlerEx02", "myFiddlerEx02\myFiddlerEx02.vbproj", "{BC3BD11E-DE9F-40D5-8744-D23879032B04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{3BDEB459-8E5E-4861-8AC4-1249B312ECED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3BDEB459-8E5E-4861-8AC4-1249B312ECED}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
 		{3BDEB459-8E5E-4861-8AC4-1249B312ECED}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release Signed|Any CPU.Build.0 = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
+		{BC3BD11E-DE9F-40D5-8744-D23879032B04}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -134,6 +134,122 @@ Module Module1
         Dim oFCSF As FiddlerCoreStartupFlags = FiddlerCoreStartupFlags.Default
 
 
+        '  E.g. If you want to add a flag, start with the .Default and "OR" the new flag on:
+        '  oFCSF = (oFCSF | FiddlerCoreStartupFlags.CaptureFTP);
+
+        '  ... or if you don't want a flag in the defaults, "and not" it out:
+        '  Uncomment the next line if you don't want FiddlerCore to act as the system proxy
+        '  oFCSF = (oFCSF & ~FiddlerCoreStartupFlags.RegisterAsSystemProxy);
+
+        '  *******************************
+        '  Important HTTPS Decryption Info
+        '  *******************************
+        '  When FiddlerCoreStartupFlags.DecryptSSL is enabled, you must include either
+        '
+        '      MakeCert.exe
+        '
+        '  *or*
+        '
+        '      CertMaker.dll
+        '      BCMakeCert.dll
+        '
+        '  ... in the folder where your executable and FiddlerCore.dll live. These files
+        '  are needed to generate the self-signed certificates used to man-in-the-middle
+        '  secure traffic. MakeCert.exe uses Windows APIs to generate certificates which
+        '  are stored in the user's \Personal\ Certificates store. These certificates are
+        '  NOT compatible with iOS devices which require specific fields in the certificate
+        '  which are not set by MakeCert.exe. 
+        '
+        '  In contrast, CertMaker.dll uses the BouncyCastle C# library (BCMakeCert.dll) to
+        '  generate new certificates from scratch. These certificates are stored in memory
+        '  only, and are compatible with iOS devices.
+
+        '  Uncomment the next line if you don't want to decrypt SSL traffic.
+        '  oFCSF = (oFCSF & ~FiddlerCoreStartupFlags.DecryptSSL);
+
+        '  NOTE In the next line, you can pass 0 for the port (instead of 8877) to have FiddlerCore auto-select an available port
+        Dim iPort As Integer = 8877
+        Fiddler.FiddlerApplication.Startup(iPort, oFCSF)
+
+        FiddlerApplication.Log.LogFormat("Created endpoint listening on port {0}", iPort)
+
+        FiddlerApplication.Log.LogFormat("Starting with settings: [{0}]", oFCSF)
+        FiddlerApplication.Log.LogFormat("Gateway: {0}", CONFIG.UpstreamGateway.ToString())
+
+        Console.WriteLine("Hit CTRL+C to end session.")
+
+
+        '  We'll also create a HTTPS listener, useful for when FiddlerCore is masquerading as a HTTPS server
+        '  instead of acting as a normal CERN-style proxy server.
+        oSecureEndpoint = FiddlerApplication.CreateProxyEndpoint(iSecureEndpointPort, True, sSecureEndpointHostname)
+        If (oSecureEndpoint IsNot Nothing) Then
+            FiddlerApplication.Log.LogFormat("Created secure endpoint listening on port {0}, using a HTTPS certificate for '{1}'", iSecureEndpointPort, sSecureEndpointHostname)
+        End If
+
+        Dim bDone As Boolean = False
+        Do While (Not bDone)
+            Console.WriteLine("\nEnter a command [C=Clear; L=List; G=Collect Garbage; W=write SAZ; R=read SAZ;\n\tS=Toggle Forgetful Streaming; T=Trust Root Certificate; Q=Quit]:")
+            Console.Write(">")
+            Dim cki As ConsoleKeyInfo = Console.ReadKey()
+            Console.WriteLine()
+
+            Select Case (Char.ToLower(cki.KeyChar))
+                Case "c"
+                    Monitor.Enter(oAllSessions)
+                    oAllSessions.Clear()
+                    Monitor.Exit(oAllSessions)
+                    WriteCommandResponse("Clear...")
+                    FiddlerApplication.Log.LogString("Cleared session list.")
+
+                Case "d"
+                    FiddlerApplication.Log.LogString("FiddlerApplication::Shutdown.")
+                    FiddlerApplication.Shutdown()
+
+                Case "l"
+                    WriteSessionList(oAllSessions)
+
+                Case "g"
+                    Console.WriteLine("Working Set:\t" + Environment.WorkingSet.ToString("n0"))
+                    Console.WriteLine("Begin GC...")
+                    GC.Collect()
+                    Console.WriteLine("GC Done.\nWorking Set:\t" + Environment.WorkingSet.ToString("n0"))
+
+                Case "q"
+                    bDone = True
+                    DoQuit()
+
+                Case "r"
+                    WriteCommandResponse("This demo was compiled without SAZ_SUPPORT defined")
+
+                Case "w"
+                    WriteCommandResponse("This demo was compiled without SAZ_SUPPORT defined")
+
+                Case "t"
+                    Try
+                        WriteCommandResponse("Result: " + Fiddler.CertMaker.trustRootCert().ToString())
+                    Catch ex As Exception
+                        WriteCommandResponse("Failed: " + ex.ToString())
+                    End Try
+
+                Case "S"
+                    Dim bForgetful As Boolean = Not FiddlerApplication.Prefs.GetBoolPref("fiddler.network.streaming.ForgetStreamedData", False)
+                    FiddlerApplication.Prefs.SetBoolPref("fiddler.network.streaming.ForgetStreamedData", bForgetful)
+                    Console.WriteLine(IIf(bForgetful, "FiddlerCore will immediately dump streaming response data.", "FiddlerCore will keep a copy of streamed response data."))
+
+            End Select
+
+        Loop
+
+
+
+
+
+
+
+
+
+
+
 
 
 
