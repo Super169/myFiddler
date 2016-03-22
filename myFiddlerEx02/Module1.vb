@@ -38,6 +38,10 @@ Module Module1
         Dim sSAZInfo As String = "NoSAZ"
         Console.WriteLine(String.Format("Starting {0} ({1})...", Fiddler.FiddlerApplication.GetVersionString(), sSAZInfo))
 
+        Fiddler.CONFIG.IgnoreServerCertErrors = False
+        FiddlerApplication.Prefs.SetBoolPref("fiddler.network.streaming.abortifclientaborts", True)
+
+
         Console.WriteLine("Press <ENTER> to quit")
         Console.ReadLine()
         DoQuit()
