@@ -62,7 +62,9 @@ Module Module1
         Try
             Monitor.Enter(oAllSessions)
             For Each oS As Session In oAllSessions
-                Console.Write(String.Format("{0} {1} {2}\n{3} {4}\n\n", oS.id, oS.oRequest.headers.HTTPMethod, Ellipsize(oS.fullUrl, 60), oS.responseCode, oS.oResponse.MIMEType))
+                Console.WriteLine(String.Format("{0} {1} {2}", oS.id, oS.oRequest.headers.HTTPMethod, Ellipsize(oS.fullUrl, 60)))
+                Console.WriteLine(String.Format("{0} {1}", oS.responseCode, oS.oResponse.MIMEType))
+                Console.WriteLine()
             Next
         Catch ex As Exception
 
