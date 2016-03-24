@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Fiddler;
 using System.Threading;
 using System.Web.Helpers;
+using System.Reflection;
 
 namespace aIcantwEx02
 {
@@ -27,12 +17,24 @@ namespace aIcantwEx02
         static string sIcantwHost = "icantw.com";
         static string sIcantwPath = "/m.do";
         static Session oIcantwSession = null;
-        static string sessionSid = "";
         static int iFiddlerPort = 8877;
+        static string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
+        static string sSessionFileName = sCurrentFolder + "\\icantw.saz";
+        static string sessionSid = "";
 
-        private void startFiddler()
+        private void configFiddler()
         {
             Fiddler.FiddlerApplication.SetAppDisplayName("Icantw Capture");
+
+            Fiddler.FiddlerApplication.OnNotification += delegate (object sender, NotificationEventArgs oNEA)
+            {
+                Console.WriteLine("** NotifyUser: " + oNEA.NotifyString);
+            };
+
+            Fiddler.FiddlerApplication.Log.OnLogString += delegate (object sender, LogEventArgs oLEA)
+            {
+                Console.WriteLine("** LogString: " + oLEA.LogString); 
+            };
 
             Fiddler.FiddlerApplication.AfterSessionComplete += delegate (Fiddler.Session oS)
             {
@@ -45,24 +47,57 @@ namespace aIcantwEx02
                         oIcantwSession = oS;
                         updateUI(oS);
                     }
-
+//                    Fiddler.FiddlerApplication.Shutdown();
                 }
             };
+
+
+            #region "SAZ Support"
+
+            string sSAZInfo = Assembly.GetAssembly(typeof(Ionic.Zip.ZipFile)).FullName;
+
+            DNZSAZProvider.fnObtainPwd = () =>
+            {
+                Console.WriteLine("Enter the password (or just hit Enter to cancel):");
+                string sResult = Console.ReadLine();
+                Console.WriteLine();
+                return sResult;
+            };
+
+            FiddlerApplication.oSAZProvider = new DNZSAZProvider();
+
+            #endregion "SAZ Support"
+
 
             Fiddler.CONFIG.IgnoreServerCertErrors = false;
 
             FiddlerApplication.Prefs.SetBoolPref("fiddler.network.streaming.abortifclientaborts", true);
 
-            FiddlerCoreStartupFlags oFCSF = FiddlerCoreStartupFlags.Default;
-            Fiddler.FiddlerApplication.Startup(iFiddlerPort, oFCSF);
+        }
 
+
+        private void startFiddler()
+        {
+            if (!FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Startup(iFiddlerPort, FiddlerCoreStartupFlags.Default);
+            Thread.Sleep(500);
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => btnCaptureSession.Content = "Stop"));
+        }
+
+        private void stopFiddler()
+        {
+            if (FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Shutdown();
+            Thread.Sleep(500);
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => btnCaptureSession.Content = "Start"));
         }
 
         private void updateUI(Session oS)
         {
             string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
             string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-
 
             dynamic jsonRequest = Json.Decode(requestText);
             dynamic jsonResponse = Json.Decode(responseText);
@@ -110,7 +145,7 @@ namespace aIcantwEx02
         {
             InitializeComponent();
 
-            startFiddler();
+            configFiddler();
 
         }
 
@@ -120,8 +155,6 @@ namespace aIcantwEx02
             Thread.Sleep(500);
         }
 
-        
-
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
             sendRequest();
@@ -130,6 +163,7 @@ namespace aIcantwEx02
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
             string sAction = cboAction.Text;
+            string sBody = "";
             switch (sAction)
             {
                 case "Login.login":
@@ -138,8 +172,39 @@ namespace aIcantwEx02
                 case "World.citySituationDetail":
                     goWorld_citySituationDetail();
                     break;
+                case "Patrol.getPatrolInfo":
+                    goGenericRequest("Patrol.getPatrolInfo");
+                    break;
+                case "System.ping":
+                    TimeSpan t = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1);
+                    Int64 jsTime = (Int64) (t.TotalMilliseconds + 0.5);
+                    sBody = "{\"clientTime\":\"" + jsTime.ToString() +" \"}";
+                    goGenericRequest("System.ping", sBody);
+                    break;
+                case "Rank.findAllPowerRank":
+                    goGenericRequest("Rank.findAllPowerRank");
+                    break;
             }
 
+        }
+
+        private void goGenericRequest(string act, string body = "")
+        {
+            dynamic json;
+            try
+            {
+                json = Json.Decode("{}");
+                json.act = act;
+                json.sid = txtSId.Text;
+                if (body != null)   json.body = body;
+                txtRequest.Text = Json.Encode(json);
+                sendRequest();
+            }
+            catch (Exception ex)
+            {
+                txtResponse.Text = ex.Message;
+                return;
+            }
         }
 
         // {"act":"Login.login","body":"{\"type\":\"WEB_BROWSER\",\"loginCode\":\"<<--sid-->>\"}"}
@@ -205,6 +270,8 @@ namespace aIcantwEx02
                 string jsonString = txtRequest.Text;
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
+
+                startFiddler();
                 Session newSession = FiddlerApplication.oProxy.SendRequest(oIcantwSession.oRequest.headers,
                                                                             requestBodyBytes, null, OnStageChangeHandler);
             }
@@ -220,9 +287,9 @@ namespace aIcantwEx02
             if (e.newState == SessionStates.Done)
             {
                 Session oS = (Session)sender;
+                stopFiddler();
                 updateUI(oS);
             }
-
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -230,6 +297,83 @@ namespace aIcantwEx02
             this.Close();
         }
 
+        private void btnCaptureSession_Click(object sender, RoutedEventArgs e)
+        {
+            if (FiddlerApplication.IsStarted()) stopFiddler();
+            else startFiddler();
+        }
+
+        private void btnSaveSession_Click(object sender, RoutedEventArgs e)
+        {
+            if (oIcantwSession == null)
+            {
+                txtResponse.Text = "<< Session not yet captured >>";
+                txtInfo.Text = "";
+                return;
+            }
+            bool bSuccess;
+            Session[] sessions = { oIcantwSession };
+            try
+            {
+                startFiddler();
+
+                // bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, sSessionFilePwd, false);
+                bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, null, false);
+
+                if (bSuccess)
+                {
+                    txtResponse.Text = "Session saved successfully";
+                } else
+                {
+                    txtResponse.Text = "Fail to save the session";
+                }
+                txtInfo.Text = "";
+            }
+            catch (Exception ex)
+            {
+                txtResponse.Text = ex.Message;
+                txtInfo.Text = "";
+            } finally
+            {
+                stopFiddler();
+            }
+
+        }
+
+        private void btnLoadSession_Click(object sender, RoutedEventArgs e)
+        {
+            Session[] sessions = null;
+            try
+            {
+                startFiddler();
+
+                sessions = Fiddler.Utilities.ReadSessionArchive( sSessionFileName, false);
+                if (sessions == null)
+                {
+                    txtResponse.Text = "Fail reading session file";
+
+                } else if (sessions.Length == 0)
+                {
+                    txtResponse.Text = "Session file is empty";
+
+                } else
+                {
+                    oIcantwSession = sessions[0];
+                    sessionSid = ""; // reset sid
+                    updateUI(oIcantwSession);
+                }
+                txtInfo.Text = "";
+            }
+            catch (Exception ex)
+            {
+                txtResponse.Text = ex.Message;
+                txtInfo.Text = "";
+            } finally
+            {
+                stopFiddler();
+            }
+
+        }
     }
 
 }

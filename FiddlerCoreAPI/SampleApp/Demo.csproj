@@ -46,7 +46,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NO_SAZ_SUPPORT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SAZ_SUPPORT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -100,7 +100,7 @@
       <HintPath>..\DotNet4\FiddlerCore4.dll</HintPath>
     </Reference>
     <Reference Include="Ionic.Zip.Reduced">
-      <HintPath>..\Ionic.Zip.Reduced.dll</HintPath>
+      <HintPath>..\..\Assemblies\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
