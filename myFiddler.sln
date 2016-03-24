@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cFiddlerEx02", "cFiddlerEx0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aIcantwEx01", "aIcantwEx01\aIcantwEx01.csproj", "{B76AE7DA-FA5D-4A7F-AC98-CB45C78D70A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aIcantwEx02", "aIcantwEx02\aIcantwEx02.csproj", "{676B9036-00B5-4F28-899F-7D6F20C615BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,14 @@ Global
 		{B76AE7DA-FA5D-4A7F-AC98-CB45C78D70A3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B76AE7DA-FA5D-4A7F-AC98-CB45C78D70A3}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
 		{B76AE7DA-FA5D-4A7F-AC98-CB45C78D70A3}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release Signed|Any CPU.Build.0 = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
+		{676B9036-00B5-4F28-899F-7D6F20C615BD}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
