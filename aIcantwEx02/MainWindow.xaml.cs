@@ -27,6 +27,7 @@ namespace aIcantwEx02
         static string sIcantwHost = "icantw.com";
         static string sIcantwPath = "/m.do";
         static Session oIcantwSession = null;
+        static string sessionSid = "";
         static int iFiddlerPort = 8877;
 
         private void startFiddler()
@@ -63,13 +64,20 @@ namespace aIcantwEx02
             string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
 
 
-            dynamic json = Json.Decode(requestText);
-            string sid = json.sid;
-            string cityId = json.cityId;
+            dynamic jsonRequest = Json.Decode(requestText);
+            dynamic jsonResponse = Json.Decode(responseText);
+            string act = jsonRequest.act;
+            string sid = jsonRequest.sid;
+            string cityId = jsonRequest.cityId;
 
-            Application.Current.Dispatcher.BeginInvoke(
-                System.Windows.Threading.DispatcherPriority.Normal,
-                (Action)(() => txtSId.Text = sid));
+            // Only update sid if empty, some action does not contain sid (e.g. Login.login)
+            if (sessionSid == "")
+            {
+                sessionSid = sid;
+                Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    (Action)(() => txtSId.Text = sid));
+            }
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => txtCityId.Text = cityId));
@@ -83,6 +91,18 @@ namespace aIcantwEx02
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => btnSend.IsEnabled = true));
+
+            string info = "";
+            switch (act)
+            {
+                case "Login.login":
+                    info = jsonResponse.serverTitle + " : " + jsonResponse.nickname;
+                    break;
+            }
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtInfo.Text = info));
+
 
         }
 
@@ -106,8 +126,45 @@ namespace aIcantwEx02
         {
             sendRequest();
         }
+        
+        private void btnGo_Click(object sender, RoutedEventArgs e)
+        {
+            string sAction = cboAction.Text;
+            switch (sAction)
+            {
+                case "Login.login":
+                    goLogin_login();
+                    break;
+                case "World.citySituationDetail":
+                    goWorld_citySituationDetail();
+                    break;
+            }
 
-        private void btnCityInfo_Click(object sender, RoutedEventArgs e)
+        }
+
+        // {"act":"Login.login","body":"{\"type\":\"WEB_BROWSER\",\"loginCode\":\"<<--sid-->>\"}"}
+
+        private void goLogin_login()
+        {
+            dynamic json;
+            try
+            {
+                json = Json.Decode("{}");
+                json.act = "Login.login";
+                json.body = "{\"type\":\"WEB_BROWSER\",\"loginCode\":\"" + txtSId.Text + "\"}";
+                txtRequest.Text = Json.Encode(json);
+                sendRequest();
+            }
+            catch (Exception ex)
+            {
+                txtResponse.Text = ex.Message;
+                return;
+            }
+        }
+
+        // {"act":"World.citySituationDetail","sid":"<<--sid-->>","body":"{\"cityId\":<<--cityId-->>}"}
+
+        private void goWorld_citySituationDetail()
         {
             if (txtCityId.Text.Trim() == "" )
             {
@@ -143,6 +200,8 @@ namespace aIcantwEx02
 
             try
             {
+                txtResponse.Text = "";
+                txtInfo.Text = "";
                 string jsonString = txtRequest.Text;
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
@@ -155,6 +214,7 @@ namespace aIcantwEx02
             }
         }
 
+
         private void OnStageChangeHandler(object sender, StateChangeEventArgs e)
         {
             if (e.newState == SessionStates.Done)
@@ -165,6 +225,10 @@ namespace aIcantwEx02
 
         }
 
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
 
     }
 
