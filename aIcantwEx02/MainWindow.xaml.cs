@@ -91,7 +91,7 @@ namespace aIcantwEx02
             Thread.Sleep(500);
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
-                (Action)(() => btnCaptureSession.Content = "Start"));
+                (Action)(() => btnCaptureSession.Content = "Capture"));
         }
 
         private void updateUI(Session oS)
@@ -141,6 +141,24 @@ namespace aIcantwEx02
 
         }
 
+        private void clearSession()
+        {
+            oIcantwSession = null;
+            sessionSid = "";
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtSId.Text = ""));
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtRequest.Text = ""));
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtResponse.Text = ""));
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtInfo.Text = ""));
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -166,85 +184,38 @@ namespace aIcantwEx02
             string sBody = "";
             switch (sAction)
             {
+                case "Login.serverInfo":
+                case "Patrol.getPatrolInfo":
+                case "Rank.findAllPowerRank":
+                    goGenericRequest(sAction);
+                    break;
                 case "Login.login":
-                    goLogin_login();
+                    sBody = "{\"type\":\"WEB_BROWSER\",\"loginCode\":\"" + txtSId.Text + "\"}";
+                    goGenericRequest(sAction, false, sBody);
                     break;
                 case "World.citySituationDetail":
-                    goWorld_citySituationDetail();
-                    break;
-                case "Patrol.getPatrolInfo":
-                    goGenericRequest("Patrol.getPatrolInfo");
+                    sBody = "{\"cityId\":" + txtCityId.Text + "}";
+                    goGenericRequest(sAction, true, sBody);
                     break;
                 case "System.ping":
                     TimeSpan t = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1);
                     Int64 jsTime = (Int64) (t.TotalMilliseconds + 0.5);
                     sBody = "{\"clientTime\":\"" + jsTime.ToString() +" \"}";
-                    goGenericRequest("System.ping", sBody);
-                    break;
-                case "Rank.findAllPowerRank":
-                    goGenericRequest("Rank.findAllPowerRank");
+                    goGenericRequest(sAction, true, sBody);
                     break;
             }
 
         }
 
-        private void goGenericRequest(string act, string body = "")
+        private void goGenericRequest(string act, bool addSId = true,  string body = "")
         {
             dynamic json;
             try
             {
                 json = Json.Decode("{}");
                 json.act = act;
-                json.sid = txtSId.Text;
+                if (addSId) json.sid = txtSId.Text;
                 if (body != null)   json.body = body;
-                txtRequest.Text = Json.Encode(json);
-                sendRequest();
-            }
-            catch (Exception ex)
-            {
-                txtResponse.Text = ex.Message;
-                return;
-            }
-        }
-
-        // {"act":"Login.login","body":"{\"type\":\"WEB_BROWSER\",\"loginCode\":\"<<--sid-->>\"}"}
-
-        private void goLogin_login()
-        {
-            dynamic json;
-            try
-            {
-                json = Json.Decode("{}");
-                json.act = "Login.login";
-                json.body = "{\"type\":\"WEB_BROWSER\",\"loginCode\":\"" + txtSId.Text + "\"}";
-                txtRequest.Text = Json.Encode(json);
-                sendRequest();
-            }
-            catch (Exception ex)
-            {
-                txtResponse.Text = ex.Message;
-                return;
-            }
-        }
-
-        // {"act":"World.citySituationDetail","sid":"<<--sid-->>","body":"{\"cityId\":<<--cityId-->>}"}
-
-        private void goWorld_citySituationDetail()
-        {
-            if (txtCityId.Text.Trim() == "" )
-            {
-                txtResponse.Text = "<<Please provide CityId>>";
-                return;
-            }
-            int cityId = 0;
-            dynamic json;
-            try
-            {
-                cityId = int.Parse(txtCityId.Text.Trim());
-                json = Json.Decode("{}");
-                json.act = "World.citySituationDetail";
-                json.sid = txtSId.Text;
-                json.body = "{\"cityId\":" + txtCityId.Text + "}";
                 txtRequest.Text = Json.Encode(json);
                 sendRequest();
             }
@@ -300,7 +271,11 @@ namespace aIcantwEx02
         private void btnCaptureSession_Click(object sender, RoutedEventArgs e)
         {
             if (FiddlerApplication.IsStarted()) stopFiddler();
-            else startFiddler();
+            else
+            {
+                clearSession();
+                startFiddler();
+            }
         }
 
         private void btnSaveSession_Click(object sender, RoutedEventArgs e)
