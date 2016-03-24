@@ -194,6 +194,22 @@ namespace aIcantwEx02
                     goGenericRequest(sAction, false, sBody);
                     break;
                 case "World.citySituationDetail":
+                    string sCityId = txtCityId.Text.Trim();
+                    int iCityId = 0;
+                    if (!int.TryParse(sCityId, out iCityId))
+                    {
+                        txtResponse.Text = "<< Please enter city Id in numeric >>";
+                        txtInfo.Text = "";
+                        return;
+                    }
+
+                    if ((iCityId <= 0) || (iCityId >= 130))
+                    {
+                        txtResponse.Text = "<< Invalid city Id >>";
+                        txtInfo.Text = "";
+                        return;
+                    }
+
                     sBody = "{\"cityId\":" + txtCityId.Text + "}";
                     goGenericRequest(sAction, true, sBody);
                     break;
