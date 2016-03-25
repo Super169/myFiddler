@@ -5,6 +5,8 @@ using Fiddler;
 using System.Threading;
 using System.Web.Helpers;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace aIcantwEx02
 {
@@ -100,7 +102,6 @@ namespace aIcantwEx02
             string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
 
             dynamic jsonRequest = Json.Decode(requestText);
-            dynamic jsonResponse = Json.Decode(responseText);
             string act = jsonRequest.act;
             string sid = jsonRequest.sid;
             string cityId = jsonRequest.cityId;
@@ -131,7 +132,10 @@ namespace aIcantwEx02
             switch (act)
             {
                 case "Login.login":
-                    info = jsonResponse.serverTitle + " : " + jsonResponse.nickname;
+                    info = showLogin(responseText);
+                    break;
+                case "Hero.getPlayerHeroList":
+                    info = showHero(responseText);
                     break;
             }
             Application.Current.Dispatcher.BeginInvoke(
@@ -159,6 +163,16 @@ namespace aIcantwEx02
                 (Action)(() => txtInfo.Text = ""));
         }
 
+        private void fillResponse(string responseText = "", string infoText = "")
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtResponse.Text = responseText));
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtInfo.Text = infoText));
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -184,9 +198,26 @@ namespace aIcantwEx02
             string sBody = "";
             switch (sAction)
             {
+                case "Campaign.eliteBuyTime":
+                case "Campaign.fightNext":
+                case "Campaign.getLeftTimes":
+                case "Campaign.getTrialsInfo":
+                case "Campaign.nextEnemies":
+                case "Campaign.quitCampaign":
+                case "Email.openInBox":
+                case "Hero.getFeastInfo":
+                case "Hero.getConvenientFormations":
+                case "Hero.getPlayerHeroList":
                 case "Login.serverInfo":
+                case "Manor.getManorInfo":
                 case "Patrol.getPatrolInfo":
                 case "Rank.findAllPowerRank":
+                case "Shop.shopNextRefreshTime":
+                case "TeamDuplicate.battleStart":
+                case "TeamDuplicate.duplicateList":
+                case "TeamDuplicate.teamDuplicateFreeTimes":
+                case "TurnCardReward.getTurnCardRewards":
+                case "World.getAllTransportingUnits":
                     goGenericRequest(sAction);
                     break;
                 case "Login.login":
@@ -223,7 +254,7 @@ namespace aIcantwEx02
 
         }
 
-        private void goGenericRequest(string act, bool addSId = true,  string body = "")
+        private void goGenericRequest(string act, bool addSId = true,  string body = null)
         {
             dynamic json;
             try
@@ -298,8 +329,7 @@ namespace aIcantwEx02
         {
             if (oIcantwSession == null)
             {
-                txtResponse.Text = "<< Session not yet captured >>";
-                txtInfo.Text = "";
+                fillResponse("<< Session not yet captured >>");
                 return;
             }
             bool bSuccess;
@@ -311,14 +341,8 @@ namespace aIcantwEx02
                 // bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, sSessionFilePwd, false);
                 bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, null, false);
 
-                if (bSuccess)
-                {
-                    txtResponse.Text = "Session saved successfully";
-                } else
-                {
-                    txtResponse.Text = "Fail to save the session";
-                }
-                txtInfo.Text = "";
+                if (bSuccess) fillResponse("Session saved successfully");
+                else fillResponse("Fail to save the session");
             }
             catch (Exception ex)
             {
@@ -341,29 +365,94 @@ namespace aIcantwEx02
                 sessions = Fiddler.Utilities.ReadSessionArchive( sSessionFileName, false);
                 if (sessions == null)
                 {
-                    txtResponse.Text = "Fail reading session file";
-
+                    fillResponse("Fail reading session file");
                 } else if (sessions.Length == 0)
                 {
-                    txtResponse.Text = "Session file is empty";
-
+                    fillResponse("Session file is empty");
                 } else
                 {
                     oIcantwSession = sessions[0];
                     sessionSid = ""; // reset sid
                     updateUI(oIcantwSession);
                 }
-                txtInfo.Text = "";
             }
             catch (Exception ex)
             {
-                txtResponse.Text = ex.Message;
-                txtInfo.Text = "";
+                fillResponse(ex.Message);
             } finally
             {
                 stopFiddler();
             }
 
+        }
+
+        private void btnJson_Click(object sender, RoutedEventArgs e)
+        {
+            if (txtRequest.Text.Trim() == "") fillResponse("<< Please enter JSON string as request >>");
+            try
+            {
+                dynamic jsonRequest = Json.Decode(txtRequest.Text.Trim());
+                fillResponse("Conversion to JSON: Success\n\n" + jsonToString(jsonRequest));
+            }
+            catch (Exception ex) {
+                fillResponse("Conversion to JSON: FAILED!\n\n" + ex.Message);
+            }
+
+            Window1 w = new Window1();
+            w.Show();
+
+        }
+
+        private string jsonToString(dynamic json)
+        {
+            string jString = "";
+
+            foreach (Object o in json) {
+                if (o is KeyValuePair<string, object>)
+                {
+                    KeyValuePair<string, object> x = (KeyValuePair<string, object>) o;
+                    if (x.Value is string)
+                    {
+                        jString += string.Format("{0} : {1}\n", x.Key, x.Value);
+                    } else if (x.Value is DynamicJsonObject)
+                    {
+                        // contain another JSON object
+                        jString += string.Format("****** {0} : Json Object - start\n", x.Key);
+                        jString += jsonToString(x.Value);
+                        jString += string.Format("****** {0} : Json Object - end\n", x.Key);
+                    }
+                    else if (x.Value is DynamicJsonArray)
+                    {
+                        jString += string.Format("------ {0} : Json Array - start\n", x.Key);
+
+                        foreach(var arrayValue in (DynamicJsonArray) x.Value)
+                        {
+                            if (arrayValue is string)
+                            {
+                                jString += string.Format("{0}\n", arrayValue);
+                            } else if (arrayValue is DynamicJsonObject)
+                            {
+                                jString += jsonToString(arrayValue);
+                            } else
+                            {
+                                jString += string.Format("<< {0} >>\n", arrayValue.ToString());
+                            }
+                        }
+                        // jString += jsonToString(x.Value);
+                        jString += string.Format("------ {0} : Json Array - end\n", x.Key);
+                    } else
+                    {
+                        jString += String.Format("{0} : << {1} >>\n", x.Key, x.Value.ToString());
+                    }
+
+                } else
+                {
+                    jString += String.Format("** Invalid entry: {0}\n", o.ToString());
+                }
+                KeyValuePair<string, object> j = (KeyValuePair<string, object>)o;
+            }
+
+            return jString;
         }
     }
 
