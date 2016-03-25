@@ -49,7 +49,7 @@ namespace aIcantwEx02
                         oIcantwSession = oS;
                         updateUI(oS);
                     }
-//                    Fiddler.FiddlerApplication.Shutdown();
+                    stopFiddler();
                 }
             };
 
@@ -78,9 +78,12 @@ namespace aIcantwEx02
         }
 
 
-        private void startFiddler()
+        private void startFiddler(bool useProxy = true)
         {
-            if (!FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Startup(iFiddlerPort, FiddlerCoreStartupFlags.Default);
+            FiddlerCoreStartupFlags oFCSF = FiddlerCoreStartupFlags.Default;
+            if (!useProxy) oFCSF &= ~FiddlerCoreStartupFlags.RegisterAsSystemProxy;
+
+            if (!FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Startup(iFiddlerPort, oFCSF);
             Thread.Sleep(500);
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
@@ -290,7 +293,7 @@ namespace aIcantwEx02
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
 
-                startFiddler();
+                startFiddler(false);
                 Session newSession = FiddlerApplication.oProxy.SendRequest(oIcantwSession.oRequest.headers,
                                                                             requestBodyBytes, null, OnStageChangeHandler);
             }
@@ -308,6 +311,8 @@ namespace aIcantwEx02
                 Session oS = (Session)sender;
                 stopFiddler();
                 updateUI(oS);
+            } else if (e.newState == SessionStates.Aborted) {
+                stopFiddler();
             }
         }
 
@@ -322,6 +327,7 @@ namespace aIcantwEx02
             else
             {
                 clearSession();
+                fillResponse("<< Waiting for icantw session >>");
                 startFiddler();
             }
         }
@@ -337,7 +343,6 @@ namespace aIcantwEx02
             Session[] sessions = { oIcantwSession };
             try
             {
-                startFiddler();
 
                 // bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, sSessionFilePwd, false);
                 bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, null, false);
@@ -349,11 +354,7 @@ namespace aIcantwEx02
             {
                 txtResponse.Text = ex.Message;
                 txtInfo.Text = "";
-            } finally
-            {
-                stopFiddler();
-            }
-
+            } 
         }
 
         private void btnLoadSession_Click(object sender, RoutedEventArgs e)
@@ -361,7 +362,6 @@ namespace aIcantwEx02
             Session[] sessions = null;
             try
             {
-                startFiddler();
 
                 sessions = Fiddler.Utilities.ReadSessionArchive( sSessionFileName, false);
                 if (sessions == null)
@@ -380,9 +380,6 @@ namespace aIcantwEx02
             catch (Exception ex)
             {
                 fillResponse(ex.Message);
-            } finally
-            {
-                stopFiddler();
             }
 
         }
