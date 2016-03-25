@@ -104,7 +104,7 @@ namespace aIcantwEx02
             dynamic jsonRequest = Json.Decode(requestText);
             string act = jsonRequest.act;
             string sid = jsonRequest.sid;
-            string cityId = jsonRequest.cityId;
+            // string cityId = jsonRequest.cityId;  // cityId is under body
 
             // Only update sid if empty, some action does not contain sid (e.g. Login.login)
             if (sessionSid == "")
@@ -114,10 +114,11 @@ namespace aIcantwEx02
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)(() => txtSId.Text = sid));
             }
+            /*
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => txtCityId.Text = cityId));
-
+            */
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => txtRequest.Text = requestText));
@@ -194,7 +195,7 @@ namespace aIcantwEx02
         
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
-            string sAction = cboAction.Text;
+            string sAction = cboAction.Text.Split('|')[0].Trim();
             string sBody = "";
             switch (sAction)
             {
