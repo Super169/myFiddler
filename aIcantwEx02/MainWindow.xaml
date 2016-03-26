@@ -74,6 +74,7 @@
                 <ComboBoxItem Content="TurnCardReward.getTurnCardRewards"/>
                 <ComboBoxItem Content="World.citySituationDetail | cityId"/>
                 <ComboBoxItem Content="World.getAllTransportingUnits"/>
+                <ComboBoxItem Content="** Retire All"/>
             </ComboBox>
             <Button x:Name="btnGo" Content="Go" HorizontalAlignment="Right" Margin="0,0,170,10" VerticalAlignment="Bottom" Width="75" Click="btnGo_Click"/>
             <Button x:Name="btnSend" Content="Send" HorizontalAlignment="Right" Margin="0,0,90,10" VerticalAlignment="Bottom" Width="75" Click="btnSend_Click"/>

@@ -75,6 +75,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="MainWindow.p1.cs" />
+    <Compile Include="MainWindow.p2.cs" />
     <Compile Include="SAZ-DotNetZip.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>

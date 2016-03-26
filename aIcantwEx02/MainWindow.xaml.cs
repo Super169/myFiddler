@@ -24,6 +24,7 @@ namespace aIcantwEx02
         static string sSessionFileName = sCurrentFolder + "\\icantw.saz";
         static string sessionSid = "";
 
+
         private void configFiddler()
         {
             Fiddler.FiddlerApplication.SetAppDisplayName("Icantw Capture");
@@ -35,7 +36,7 @@ namespace aIcantwEx02
 
             Fiddler.FiddlerApplication.Log.OnLogString += delegate (object sender, LogEventArgs oLEA)
             {
-                Console.WriteLine("** LogString: " + oLEA.LogString); 
+                Console.WriteLine("** LogString: " + oLEA.LogString);
             };
 
             Fiddler.FiddlerApplication.AfterSessionComplete += delegate (Fiddler.Session oS)
@@ -49,7 +50,7 @@ namespace aIcantwEx02
                         oIcantwSession = oS;
                         updateUI(oS);
                     }
-                    stopFiddler();
+                    // stopFiddler();
                 }
             };
 
@@ -195,7 +196,7 @@ namespace aIcantwEx02
         {
             sendRequest();
         }
-        
+
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
             string sAction = cboAction.Text.Split('|')[0].Trim();
@@ -250,15 +251,18 @@ namespace aIcantwEx02
                     break;
                 case "System.ping":
                     TimeSpan t = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1);
-                    Int64 jsTime = (Int64) (t.TotalMilliseconds + 0.5);
-                    sBody = "{\"clientTime\":\"" + jsTime.ToString() +" \"}";
+                    Int64 jsTime = (Int64)(t.TotalMilliseconds + 0.5);
+                    sBody = "{\"clientTime\":\"" + jsTime.ToString() + " \"}";
                     goGenericRequest(sAction, true, sBody);
+                    break;
+                case "** Retire All":
+                    goTaskRetireAll();
                     break;
             }
 
         }
 
-        private void goGenericRequest(string act, bool addSId = true,  string body = null)
+        private void goGenericRequest(string act, bool addSId = true, string body = null)
         {
             dynamic json;
             try
@@ -266,7 +270,7 @@ namespace aIcantwEx02
                 json = Json.Decode("{}");
                 json.act = act;
                 if (addSId) json.sid = txtSId.Text;
-                if (body != null)   json.body = body;
+                if (body != null) json.body = body;
                 txtRequest.Text = Json.Encode(json);
                 sendRequest();
             }
@@ -277,19 +281,25 @@ namespace aIcantwEx02
             }
         }
 
-        private void sendRequest()
+        private bool sendRequest()
+        {
+            return sendRequest(txtRequest.Text);
+        }
+
+
+        private bool sendRequest(string requestText)
         {
             if (oIcantwSession == null)
             {
                 txtResponse.Text = "<<No session captured>>";
-                return;
+                return false;
             }
 
             try
             {
                 txtResponse.Text = "";
                 txtInfo.Text = "";
-                string jsonString = txtRequest.Text;
+                string jsonString = requestText;
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
 
@@ -300,19 +310,34 @@ namespace aIcantwEx02
             catch (Exception ex)
             {
                 txtResponse.Text = ex.Message;
+                return false;
             }
+            return true;
         }
-
 
         private void OnStageChangeHandler(object sender, StateChangeEventArgs e)
         {
             if (e.newState == SessionStates.Done)
             {
                 Session oS = (Session)sender;
-                stopFiddler();
                 updateUI(oS);
-            } else if (e.newState == SessionStates.Aborted) {
-                stopFiddler();
+                if (taskRunning)
+                {
+                    Application.Current.Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)(() => goNextTask(true)));
+                }
+                else stopFiddler();
+            }
+            else if (e.newState == SessionStates.Aborted)
+            {
+                if (taskRunning)
+                {
+                    Application.Current.Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)(() => goNextTask(false)));
+                }
+                else stopFiddler();
             }
         }
 
@@ -354,7 +379,7 @@ namespace aIcantwEx02
             {
                 txtResponse.Text = ex.Message;
                 txtInfo.Text = "";
-            } 
+            }
         }
 
         private void btnLoadSession_Click(object sender, RoutedEventArgs e)
@@ -363,14 +388,16 @@ namespace aIcantwEx02
             try
             {
 
-                sessions = Fiddler.Utilities.ReadSessionArchive( sSessionFileName, false);
+                sessions = Fiddler.Utilities.ReadSessionArchive(sSessionFileName, false);
                 if (sessions == null)
                 {
                     fillResponse("Fail reading session file");
-                } else if (sessions.Length == 0)
+                }
+                else if (sessions.Length == 0)
                 {
                     fillResponse("Session file is empty");
-                } else
+                }
+                else
                 {
                     oIcantwSession = sessions[0];
                     sessionSid = ""; // reset sid
@@ -392,7 +419,8 @@ namespace aIcantwEx02
                 dynamic jsonRequest = Json.Decode(txtRequest.Text.Trim());
                 fillResponse("Conversion to JSON: Success\n\n" + jsonToString(jsonRequest));
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 fillResponse("Conversion to JSON: FAILED!\n\n" + ex.Message);
             }
 
@@ -405,14 +433,16 @@ namespace aIcantwEx02
         {
             string jString = "";
 
-            foreach (Object o in json) {
+            foreach (Object o in json)
+            {
                 if (o is KeyValuePair<string, object>)
                 {
-                    KeyValuePair<string, object> x = (KeyValuePair<string, object>) o;
+                    KeyValuePair<string, object> x = (KeyValuePair<string, object>)o;
                     if (x.Value is string)
                     {
                         jString += string.Format("{0} : {1}\n", x.Key, x.Value);
-                    } else if (x.Value is DynamicJsonObject)
+                    }
+                    else if (x.Value is DynamicJsonObject)
                     {
                         // contain another JSON object
                         jString += string.Format("****** {0} : Json Object - start\n", x.Key);
@@ -423,27 +453,31 @@ namespace aIcantwEx02
                     {
                         jString += string.Format("------ {0} : Json Array - start\n", x.Key);
 
-                        foreach(var arrayValue in (DynamicJsonArray) x.Value)
+                        foreach (var arrayValue in (DynamicJsonArray)x.Value)
                         {
                             if (arrayValue is string)
                             {
                                 jString += string.Format("{0}\n", arrayValue);
-                            } else if (arrayValue is DynamicJsonObject)
+                            }
+                            else if (arrayValue is DynamicJsonObject)
                             {
                                 jString += jsonToString(arrayValue);
-                            } else
+                            }
+                            else
                             {
                                 jString += string.Format("<< {0} >>\n", arrayValue.ToString());
                             }
                         }
                         // jString += jsonToString(x.Value);
                         jString += string.Format("------ {0} : Json Array - end\n", x.Key);
-                    } else
+                    }
+                    else
                     {
                         jString += String.Format("{0} : << {1} >>\n", x.Key, x.Value.ToString());
                     }
 
-                } else
+                }
+                else
                 {
                     jString += String.Format("** Invalid entry: {0}\n", o.ToString());
                 }
@@ -452,6 +486,7 @@ namespace aIcantwEx02
 
             return jString;
         }
+
     }
 
 }
