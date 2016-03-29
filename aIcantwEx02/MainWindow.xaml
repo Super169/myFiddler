@@ -5,32 +5,81 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:aIcantwEx02"
         mc:Ignorable="d"
-        Title="MainWindow" Closing="winClosing" MinWidth="400" MinHeight="400" d:DesignWidth="920.066" d:DesignHeight="579.628">
-    <Grid Background="#FFE2E1E1" Margin="0,0,2,-4">
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,38,0,0" TextWrapping="Wrap" Text="Request:" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtRequest" Height="64" Margin="75,38,10,0" TextWrapping="Wrap" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"/>
-        <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="10,107,0,0" TextWrapping="Wrap" Text="Response:" VerticalAlignment="Top"/>
-        <Button x:Name="btnSend" Content="Send" HorizontalAlignment="Right" Margin="0,0,90,10" VerticalAlignment="Bottom" Width="75" Click="btnSend_Click"/>
-        <TextBox x:Name="txtResponse" Margin="75,107,10,124" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
-        <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="10,15,0,0" TextWrapping="Wrap" Text="sId:" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtSId" Height="23" Margin="75,10,160,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
-        <TextBlock x:Name="textBlock3" HorizontalAlignment="Right" Margin="0,15,90,0" TextWrapping="Wrap" Text="CityId:" VerticalAlignment="Top" RenderTransformOrigin="0.574,1.002" Width="52"/>
-        <TextBox x:Name="txtCityId" HorizontalAlignment="Right" Height="23" Margin="0,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="btnGo" Content="Go" HorizontalAlignment="Right" Margin="0,0,170,10" VerticalAlignment="Bottom" Width="75" Click="btnGo_Click"/>
-        <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="btnClose_Click"/>
-        <ComboBox x:Name="cboAction" HorizontalAlignment="Right" Margin="0,0,250,10" VerticalAlignment="Bottom" Width="167">
-            <ComboBoxItem Content="Login.serverInfo"/>
-            <ComboBoxItem Content="Login.login"/>
-            <ComboBoxItem Content="World.citySituationDetail"/>
-            <ComboBoxItem Content="Patrol.getPatrolInfo"/>
-            <ComboBoxItem Content="System.ping"/>
-            <ComboBoxItem Content="Rank.findAllPowerRank"/>
-        </ComboBox>
-        <TextBlock x:Name="textBlock4" Margin="10,0,0,97" TextWrapping="Wrap" Text="Info:" HorizontalAlignment="Left" Width="50" Height="16" VerticalAlignment="Bottom"/>
-        <TextBox x:Name="txtInfo" Margin="75,0,10,37" TextWrapping="Wrap" Height="79" VerticalAlignment="Bottom" VerticalScrollBarVisibility="Auto"/>
-        <Button x:Name="btnSaveSession" Content="Save Session" HorizontalAlignment="Left" Margin="156,0,0,10" VerticalAlignment="Bottom" Width="75" Click="btnSaveSession_Click"/>
-        <Button x:Name="btnCaptureSession" Content="Capture" HorizontalAlignment="Left" Margin="75,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" Click="btnCaptureSession_Click"/>
-        <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="236,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" RenderTransformOrigin="-0.23,0.932" Click="btnLoadSession_Click"/>
+        Title="MainWindow" Closing="winClosing" MinWidth="820" MinHeight="400" d:DesignWidth="814" d:DesignHeight="400">
 
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <Grid Background="#FFE2E1E1" Margin="0" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*" MinWidth="0"/>
+            </Grid.ColumnDefinitions>
+            <Grid Margin="0" Grid.Column="0" Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" MinHeight="100"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="*" MinHeight="100"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Margin="0">
+                    <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="10,15,0,0" TextWrapping="Wrap" Text="sId:" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txtSId" Height="23" Margin="75,10,149,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True"/>
+                    <TextBlock x:Name="textBlock3" HorizontalAlignment="Right" Margin="0,15,79,0" TextWrapping="Wrap" Text="CityId:" VerticalAlignment="Top" RenderTransformOrigin="0.574,1.002" Width="52"/>
+                    <TextBox x:Name="txtCityId" HorizontalAlignment="Right" Height="23" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2"/>
+                    <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,38,0,0" TextWrapping="Wrap" Text="Request:" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txtRequest" Margin="75,38,0,0" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+                </Grid>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="#FFE2E1E1"/>
+                <Grid Grid.Row="2" Margin="0">
+                    <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="Response:" VerticalAlignment="Top"/>
+                    <TextBox x:Name="txtResponse" Margin="75,0,0,5" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MinLines="4" IsReadOnly="True" Grid.ColumnSpan="2"/>
+
+                </Grid>
+            </Grid>
+            <GridSplitter Grid.Column="1"  VerticalAlignment="Stretch"  HorizontalAlignment="Stretch" Background="#FFE2E1E1"/>
+            <Grid Grid.Column="2" Margin="0">
+                <TextBox x:Name="txtInfo" Margin="0,10,10,5" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="2"/>
+            </Grid>
+        </Grid>
+        <Grid Background="#FFE2E1E1" Margin="0" Grid.Row="1">
+            <Button x:Name="btnCaptureSession" Content="Capture" HorizontalAlignment="Left" Margin="10,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" Click="btnCaptureSession_Click"/>
+            <Button x:Name="btnSaveSession" Content="Save Session" HorizontalAlignment="Left" Margin="90,0,0,10" VerticalAlignment="Bottom" Width="76" Click="btnSaveSession_Click" Height="22"/>
+            <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="170,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" RenderTransformOrigin="-0.23,0.932" Click="btnLoadSession_Click"/>
+            <Button x:Name="btnJson" Content="JSON" HorizontalAlignment="Left" Margin="250,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" Click="btnJson_Click"/>
+            <ComboBox x:Name="cboAction" HorizontalAlignment="Right" Margin="0,0,250,10" VerticalAlignment="Bottom" Width="200">
+                <ComboBoxItem Content="Campaign.eliteBuyTime"/>
+                <ComboBoxItem Content="Campaign.fightNext"/>
+                <ComboBoxItem Content="Campaign.getLeftTimes"/>
+                <ComboBoxItem Content="Campaign.getTrialsInfo"/>
+                <ComboBoxItem Content="Campaign.nextEnemies"/>
+                <ComboBoxItem Content="Campaign.quitCampaign"/>
+                <ComboBoxItem Content="Email.openInBox"/>
+                <ComboBoxItem Content="Hero.getConvenientFormations"/>
+                <ComboBoxItem Content="Hero.getFeastInfo"/>
+                <ComboBoxItem Content="Hero.getPlayerHeroList"/>
+                <ComboBoxItem Content="Login.login"/>
+                <ComboBoxItem Content="Login.serverInfo"/>
+                <ComboBoxItem Content="Manor.getManorInfo"/>
+                <ComboBoxItem Content="Patrol.dealPatroledEvent"/>
+                <ComboBoxItem Content="Patrol.getPatrolInfo"/>
+                <ComboBoxItem Content="Rank.findAllPowerRank"/>
+                <ComboBoxItem Content="Shop.shopNextRefreshTime"/>
+                <ComboBoxItem Content="System.ping"/>
+                <ComboBoxItem Content="TeamDuplicate.battleStart"/>
+                <ComboBoxItem Content="TeamDuplicate.duplicateList"/>
+                <ComboBoxItem Content="TeamDuplicate.teamDuplicateFreeTimes"/>
+                <ComboBoxItem Content="TurnCardReward.getTurnCardRewards"/>
+                <ComboBoxItem Content="World.citySituationDetail | cityId"/>
+                <ComboBoxItem Content="World.getAllTransportingUnits"/>
+                <ComboBoxItem Content="** Retire All"/>
+            </ComboBox>
+            <Button x:Name="btnGo" Content="Go" HorizontalAlignment="Right" Margin="0,0,170,10" VerticalAlignment="Bottom" Width="75" Click="btnGo_Click"/>
+            <Button x:Name="btnSend" Content="Send" HorizontalAlignment="Right" Margin="0,0,90,10" VerticalAlignment="Bottom" Width="75" Click="btnSend_Click"/>
+            <Button x:Name="btnClose" Content="Close" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="btnClose_Click"/>
+        </Grid>
     </Grid>
+
 </Window>

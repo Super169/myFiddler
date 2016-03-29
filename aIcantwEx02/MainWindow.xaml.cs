@@ -5,6 +5,8 @@ using Fiddler;
 using System.Threading;
 using System.Web.Helpers;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace aIcantwEx02
 {
@@ -22,6 +24,7 @@ namespace aIcantwEx02
         static string sSessionFileName = sCurrentFolder + "\\icantw.saz";
         static string sessionSid = "";
 
+
         private void configFiddler()
         {
             Fiddler.FiddlerApplication.SetAppDisplayName("Icantw Capture");
@@ -33,7 +36,7 @@ namespace aIcantwEx02
 
             Fiddler.FiddlerApplication.Log.OnLogString += delegate (object sender, LogEventArgs oLEA)
             {
-                Console.WriteLine("** LogString: " + oLEA.LogString); 
+                Console.WriteLine("** LogString: " + oLEA.LogString);
             };
 
             Fiddler.FiddlerApplication.AfterSessionComplete += delegate (Fiddler.Session oS)
@@ -47,7 +50,7 @@ namespace aIcantwEx02
                         oIcantwSession = oS;
                         updateUI(oS);
                     }
-//                    Fiddler.FiddlerApplication.Shutdown();
+                    // stopFiddler();
                 }
             };
 
@@ -76,9 +79,12 @@ namespace aIcantwEx02
         }
 
 
-        private void startFiddler()
+        private void startFiddler(bool useProxy = true)
         {
-            if (!FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Startup(iFiddlerPort, FiddlerCoreStartupFlags.Default);
+            FiddlerCoreStartupFlags oFCSF = FiddlerCoreStartupFlags.Default;
+            if (!useProxy) oFCSF &= ~FiddlerCoreStartupFlags.RegisterAsSystemProxy;
+
+            if (!FiddlerApplication.IsStarted()) Fiddler.FiddlerApplication.Startup(iFiddlerPort, oFCSF);
             Thread.Sleep(500);
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
@@ -100,10 +106,9 @@ namespace aIcantwEx02
             string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
 
             dynamic jsonRequest = Json.Decode(requestText);
-            dynamic jsonResponse = Json.Decode(responseText);
             string act = jsonRequest.act;
             string sid = jsonRequest.sid;
-            string cityId = jsonRequest.cityId;
+            // string cityId = jsonRequest.cityId;  // cityId is under body
 
             // Only update sid if empty, some action does not contain sid (e.g. Login.login)
             if (sessionSid == "")
@@ -113,10 +118,11 @@ namespace aIcantwEx02
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)(() => txtSId.Text = sid));
             }
+            /*
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => txtCityId.Text = cityId));
-
+            */
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)(() => txtRequest.Text = requestText));
@@ -131,7 +137,10 @@ namespace aIcantwEx02
             switch (act)
             {
                 case "Login.login":
-                    info = jsonResponse.serverTitle + " : " + jsonResponse.nickname;
+                    info = showLogin(responseText);
+                    break;
+                case "Hero.getPlayerHeroList":
+                    info = showHero(responseText);
                     break;
             }
             Application.Current.Dispatcher.BeginInvoke(
@@ -159,6 +168,16 @@ namespace aIcantwEx02
                 (Action)(() => txtInfo.Text = ""));
         }
 
+        private void fillResponse(string responseText = "", string infoText = "")
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtResponse.Text = responseText));
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)(() => txtInfo.Text = infoText));
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -177,16 +196,33 @@ namespace aIcantwEx02
         {
             sendRequest();
         }
-        
+
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
-            string sAction = cboAction.Text;
+            string sAction = cboAction.Text.Split('|')[0].Trim();
             string sBody = "";
             switch (sAction)
             {
+                case "Campaign.eliteBuyTime":
+                case "Campaign.fightNext":
+                case "Campaign.getLeftTimes":
+                case "Campaign.getTrialsInfo":
+                case "Campaign.nextEnemies":
+                case "Campaign.quitCampaign":
+                case "Email.openInBox":
+                case "Hero.getFeastInfo":
+                case "Hero.getConvenientFormations":
+                case "Hero.getPlayerHeroList":
                 case "Login.serverInfo":
+                case "Manor.getManorInfo":
                 case "Patrol.getPatrolInfo":
                 case "Rank.findAllPowerRank":
+                case "Shop.shopNextRefreshTime":
+                case "TeamDuplicate.battleStart":
+                case "TeamDuplicate.duplicateList":
+                case "TeamDuplicate.teamDuplicateFreeTimes":
+                case "TurnCardReward.getTurnCardRewards":
+                case "World.getAllTransportingUnits":
                     goGenericRequest(sAction);
                     break;
                 case "Login.login":
@@ -215,15 +251,18 @@ namespace aIcantwEx02
                     break;
                 case "System.ping":
                     TimeSpan t = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1);
-                    Int64 jsTime = (Int64) (t.TotalMilliseconds + 0.5);
-                    sBody = "{\"clientTime\":\"" + jsTime.ToString() +" \"}";
+                    Int64 jsTime = (Int64)(t.TotalMilliseconds + 0.5);
+                    sBody = "{\"clientTime\":\"" + jsTime.ToString() + " \"}";
                     goGenericRequest(sAction, true, sBody);
+                    break;
+                case "** Retire All":
+                    goTaskRetireAll();
                     break;
             }
 
         }
 
-        private void goGenericRequest(string act, bool addSId = true,  string body = "")
+        private void goGenericRequest(string act, bool addSId = true, string body = null)
         {
             dynamic json;
             try
@@ -231,7 +270,7 @@ namespace aIcantwEx02
                 json = Json.Decode("{}");
                 json.act = act;
                 if (addSId) json.sid = txtSId.Text;
-                if (body != null)   json.body = body;
+                if (body != null) json.body = body;
                 txtRequest.Text = Json.Encode(json);
                 sendRequest();
             }
@@ -242,40 +281,63 @@ namespace aIcantwEx02
             }
         }
 
-        private void sendRequest()
+        private bool sendRequest()
+        {
+            return sendRequest(txtRequest.Text);
+        }
+
+
+        private bool sendRequest(string requestText)
         {
             if (oIcantwSession == null)
             {
                 txtResponse.Text = "<<No session captured>>";
-                return;
+                return false;
             }
 
             try
             {
                 txtResponse.Text = "";
                 txtInfo.Text = "";
-                string jsonString = txtRequest.Text;
+                string jsonString = requestText;
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
 
-                startFiddler();
+                startFiddler(false);
                 Session newSession = FiddlerApplication.oProxy.SendRequest(oIcantwSession.oRequest.headers,
                                                                             requestBodyBytes, null, OnStageChangeHandler);
             }
             catch (Exception ex)
             {
                 txtResponse.Text = ex.Message;
+                return false;
             }
+            return true;
         }
-
 
         private void OnStageChangeHandler(object sender, StateChangeEventArgs e)
         {
             if (e.newState == SessionStates.Done)
             {
                 Session oS = (Session)sender;
-                stopFiddler();
                 updateUI(oS);
+                if (taskRunning)
+                {
+                    Application.Current.Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)(() => goNextTask(true)));
+                }
+                else stopFiddler();
+            }
+            else if (e.newState == SessionStates.Aborted)
+            {
+                if (taskRunning)
+                {
+                    Application.Current.Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)(() => goNextTask(false)));
+                }
+                else stopFiddler();
             }
         }
 
@@ -290,6 +352,7 @@ namespace aIcantwEx02
             else
             {
                 clearSession();
+                fillResponse("<< Waiting for icantw session >>");
                 startFiddler();
             }
         }
@@ -298,37 +361,25 @@ namespace aIcantwEx02
         {
             if (oIcantwSession == null)
             {
-                txtResponse.Text = "<< Session not yet captured >>";
-                txtInfo.Text = "";
+                fillResponse("<< Session not yet captured >>");
                 return;
             }
             bool bSuccess;
             Session[] sessions = { oIcantwSession };
             try
             {
-                startFiddler();
 
                 // bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, sSessionFilePwd, false);
                 bSuccess = Fiddler.Utilities.WriteSessionArchive(sSessionFileName, sessions, null, false);
 
-                if (bSuccess)
-                {
-                    txtResponse.Text = "Session saved successfully";
-                } else
-                {
-                    txtResponse.Text = "Fail to save the session";
-                }
-                txtInfo.Text = "";
+                if (bSuccess) fillResponse("Session saved successfully");
+                else fillResponse("Fail to save the session");
             }
             catch (Exception ex)
             {
                 txtResponse.Text = ex.Message;
                 txtInfo.Text = "";
-            } finally
-            {
-                stopFiddler();
             }
-
         }
 
         private void btnLoadSession_Click(object sender, RoutedEventArgs e)
@@ -336,35 +387,106 @@ namespace aIcantwEx02
             Session[] sessions = null;
             try
             {
-                startFiddler();
 
-                sessions = Fiddler.Utilities.ReadSessionArchive( sSessionFileName, false);
+                sessions = Fiddler.Utilities.ReadSessionArchive(sSessionFileName, false);
                 if (sessions == null)
                 {
-                    txtResponse.Text = "Fail reading session file";
-
-                } else if (sessions.Length == 0)
+                    fillResponse("Fail reading session file");
+                }
+                else if (sessions.Length == 0)
                 {
-                    txtResponse.Text = "Session file is empty";
-
-                } else
+                    fillResponse("Session file is empty");
+                }
+                else
                 {
                     oIcantwSession = sessions[0];
                     sessionSid = ""; // reset sid
                     updateUI(oIcantwSession);
                 }
-                txtInfo.Text = "";
             }
             catch (Exception ex)
             {
-                txtResponse.Text = ex.Message;
-                txtInfo.Text = "";
-            } finally
-            {
-                stopFiddler();
+                fillResponse(ex.Message);
             }
 
         }
+
+        private void btnJson_Click(object sender, RoutedEventArgs e)
+        {
+            if (txtRequest.Text.Trim() == "") fillResponse("<< Please enter JSON string as request >>");
+            try
+            {
+                dynamic jsonRequest = Json.Decode(txtRequest.Text.Trim());
+                fillResponse("Conversion to JSON: Success\n\n" + jsonToString(jsonRequest));
+            }
+            catch (Exception ex)
+            {
+                fillResponse("Conversion to JSON: FAILED!\n\n" + ex.Message);
+            }
+
+            Window1 w = new Window1();
+            w.Show();
+
+        }
+
+        private string jsonToString(dynamic json)
+        {
+            string jString = "";
+
+            foreach (Object o in json)
+            {
+                if (o is KeyValuePair<string, object>)
+                {
+                    KeyValuePair<string, object> x = (KeyValuePair<string, object>)o;
+                    if (x.Value is string)
+                    {
+                        jString += string.Format("{0} : {1}\n", x.Key, x.Value);
+                    }
+                    else if (x.Value is DynamicJsonObject)
+                    {
+                        // contain another JSON object
+                        jString += string.Format("****** {0} : Json Object - start\n", x.Key);
+                        jString += jsonToString(x.Value);
+                        jString += string.Format("****** {0} : Json Object - end\n", x.Key);
+                    }
+                    else if (x.Value is DynamicJsonArray)
+                    {
+                        jString += string.Format("------ {0} : Json Array - start\n", x.Key);
+
+                        foreach (var arrayValue in (DynamicJsonArray)x.Value)
+                        {
+                            if (arrayValue is string)
+                            {
+                                jString += string.Format("{0}\n", arrayValue);
+                            }
+                            else if (arrayValue is DynamicJsonObject)
+                            {
+                                jString += jsonToString(arrayValue);
+                            }
+                            else
+                            {
+                                jString += string.Format("<< {0} >>\n", arrayValue.ToString());
+                            }
+                        }
+                        // jString += jsonToString(x.Value);
+                        jString += string.Format("------ {0} : Json Array - end\n", x.Key);
+                    }
+                    else
+                    {
+                        jString += String.Format("{0} : << {1} >>\n", x.Key, x.Value.ToString());
+                    }
+
+                }
+                else
+                {
+                    jString += String.Format("** Invalid entry: {0}\n", o.ToString());
+                }
+                KeyValuePair<string, object> j = (KeyValuePair<string, object>)o;
+            }
+
+            return jString;
+        }
+
     }
 
 }
