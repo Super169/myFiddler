@@ -62,7 +62,8 @@
                 <ComboBoxItem Content="Hero.getPlayerHeroList"/>
                 <ComboBoxItem Content="Login.login"/>
                 <ComboBoxItem Content="Login.serverInfo"/>
-                <ComboBoxItem Content="Manor.getManorInfo"/>
+                <ComboBoxItem Content="Manor.decreeInfo | 軍府資料"/>
+                <ComboBoxItem Content="Manor.getManorInfo | 封地資料"/>
                 <ComboBoxItem Content="Patrol.dealPatroledEvent"/>
                 <ComboBoxItem Content="Patrol.getPatrolInfo"/>
                 <ComboBoxItem Content="Rank.findAllPowerRank"/>
@@ -72,7 +73,7 @@
                 <ComboBoxItem Content="TeamDuplicate.duplicateList"/>
                 <ComboBoxItem Content="TeamDuplicate.teamDuplicateFreeTimes"/>
                 <ComboBoxItem Content="TurnCardReward.getTurnCardRewards"/>
-                <ComboBoxItem Content="World.citySituationDetail | cityId"/>
+                <ComboBoxItem Content="World.citySituationDetail | cityId - 城市資料"/>
                 <ComboBoxItem Content="World.getAllTransportingUnits"/>
                 <ComboBoxItem Content="** Retire All"/>
                 <ComboBoxItem Content="** Tester"/>

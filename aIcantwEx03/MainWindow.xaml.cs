@@ -120,94 +120,9 @@ namespace aIcantwEx03
         private void btnGo_Click(object sender, RoutedEventArgs e)
         {
             string sAction = cboAction.Text.Split('|')[0].Trim();
-            string sBody = "";
-            switch (sAction)
-            {
-                case "Campaign.eliteBuyTime":
-                case "Campaign.fightNext":
-                case "Campaign.getLeftTimes":
-                case "Campaign.getTrialsInfo":
-                case "Campaign.nextEnemies":
-                case "Campaign.quitCampaign":
-                case "Email.openInBox":
-                case "Hero.getFeastInfo":
-                case "Hero.getConvenientFormations":
-                case "Hero.getPlayerHeroList":
-                case "Login.serverInfo":
-                case "Manor.getManorInfo":
-                case "Patrol.getPatrolInfo":
-                case "Rank.findAllPowerRank":
-                case "Shop.shopNextRefreshTime":
-                case "TeamDuplicate.battleStart":
-                case "TeamDuplicate.duplicateList":
-                case "TeamDuplicate.teamDuplicateFreeTimes":
-                case "TurnCardReward.getTurnCardRewards":
-                case "World.getAllTransportingUnits":
-                    goGenericRequest(sAction);
-                    break;
-                case "Login.login":
-                    sBody = "{\"type\":\"WEB_BROWSER\",\"loginCode\":\"" + txtSId.Text + "\"}";
-                    goGenericRequest(sAction, false, sBody);
-                    break;
-                case "World.citySituationDetail":
-                    string sCityId = txtCityId.Text.Trim();
-                    int iCityId = 0;
-                    if (!int.TryParse(sCityId, out iCityId))
-                    {
-                        txtResponse.Text = "<< Please enter city Id in numeric >>";
-                        txtInfo.Text = "";
-                        return;
-                    }
-
-                    if ((iCityId <= 0) || (iCityId >= 130))
-                    {
-                        txtResponse.Text = "<< Invalid city Id >>";
-                        txtInfo.Text = "";
-                        return;
-                    }
-
-                    sBody = "{\"cityId\":" + txtCityId.Text + "}";
-                    goGenericRequest(sAction, true, sBody);
-                    break;
-                case "System.ping":
-                    TimeSpan t = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1);
-                    Int64 jsTime = (Int64)(t.TotalMilliseconds + 0.5);
-                    sBody = "{\"clientTime\":\"" + jsTime.ToString() + " \"}";
-                    goGenericRequest(sAction, true, sBody);
-                    break;
-                case "** Retire All":
-                    goTaskRetireAll();
-                    break;
-                case "** Tester":
-                    goTaskTester();
-                    break;
-            }
-
+            goAction(sAction);
         }
 
-        private void goGenericRequest(string act, bool addSId = true, string body = null)
-        {
-            dynamic json;
-            try
-            {
-                json = Json.Decode("{}");
-                json.act = act;
-                if (addSId) json.sid = txtSId.Text;
-                if (body != null) json.body = body;
-                txtRequest.Text = Json.Encode(json);
-                sendRequest();
-            }
-            catch (Exception ex)
-            {
-                txtResponse.Text = ex.Message;
-                return;
-            }
-        }
-
-        private bool sendRequest()
-        {
-            return sendRequest(txtRequest.Text).success;
-        }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
