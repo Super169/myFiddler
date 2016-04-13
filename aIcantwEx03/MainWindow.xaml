@@ -75,6 +75,7 @@
                 <ComboBoxItem Content="TurnCardReward.getTurnCardRewards"/>
                 <ComboBoxItem Content="World.citySituationDetail | cityId - 城市資料"/>
                 <ComboBoxItem Content="World.getAllTransportingUnits"/>
+                <ComboBoxItem Content="World.worldSituation | 地圖全城市資料"/>
                 <ComboBoxItem Content="** Retire All"/>
                 <ComboBoxItem Content="** Tester"/>
             </ComboBox>

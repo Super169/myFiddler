@@ -121,6 +121,7 @@ namespace aIcantwEx03
                 case "TeamDuplicate.teamDuplicateFreeTimes":
                 case "TurnCardReward.getTurnCardRewards":
                 case "World.getAllTransportingUnits":
+                case "World.worldSituation":
                     goGenericRequest(sAction);
                     break;
                 case "Login.login":
@@ -227,6 +228,9 @@ namespace aIcantwEx03
                         break;
                     case "Hero.getPlayerHeroList":
                         info = showHero(responseText);
+                        break;
+                    case "World.worldSituation":
+                        info = showWorldSituation(responseText);
                         break;
                 }
 

@@ -82,6 +82,32 @@ namespace aIcantwEx03
         }
 
 
+        private string showWorldSituation(string responseText)
+        {
+            string info = "";
+            try
+            {
+                string jsonString = getJsonFromResponse(responseText);
+                dynamic json = Json.Decode(jsonString);
+
+                DynamicJsonArray cities = json.cities;
+
+                foreach (dynamic city in cities)
+                {
+                    string cityInfo = string.Format("{0} : {1} : {2} : {3} : {4} : {5} : {6} : {7} : {8} : {9} : {10} : {11}", 
+                                                    city.id, city.attLeaderIcon, city.st, city.avoidEndT, city.startT, city.buff, city.majorIcon,
+                                                    city.countryId, city.destroyCountry, city.owner, city.flag, city.major);
+                    info += cityInfo + "\n";
+                }
+            }
+            catch (Exception ex)
+            {
+                info = "Fail getting world situation:\n" + ex.Message;
+            }
+
+            return info;
+        }
+
     }
 
 }

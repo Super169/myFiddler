@@ -61,6 +61,9 @@ namespace aIcantwEx03
                 case "Hero.getPlayerHeroList":
                     info = showHero(responseText);
                     break;
+                case "World.worldSituation":
+                    info = showWorldSituation(responseText);
+                    break;
             }
             Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
