@@ -8,7 +8,7 @@
         Title="自動大皇帝" Height="640" Width="800">
     <Grid>
         <Button x:Name="btnDetect" Content="偵測帳戶" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-2.982,-1.645" Click="btnDetect_Click"/>
-        <ListView x:Name="lvPlayers" HorizontalAlignment="Left" Height="100" Margin="10,37,0,0" VerticalAlignment="Top" Width="772">
+        <ListView x:Name="lvPlayers" HorizontalAlignment="Left" Height="110" Margin="10,37,0,0" VerticalAlignment="Top" Width="772">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="SID" Width="100" DisplayMemberBinding="{Binding Sid}"/>

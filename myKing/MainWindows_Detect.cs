@@ -66,6 +66,7 @@ namespace myKing
                     LoginInfo info = myKingInterface.getLogin_login(oS, sid);
                     accounts.Last().Server = info.serverTitle;
                     accounts.Last().NickName = info.nickName;
+                    accounts.Last().CorpsName = info.CORPS_NAME;
 
                     Application.Current.Dispatcher.BeginInvoke(
                         System.Windows.Threading.DispatcherPriority.Normal,

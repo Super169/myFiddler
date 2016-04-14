@@ -24,6 +24,7 @@ namespace myKing
             public string serverTitle;
             public string account;
             public string nickName;
+            public string CORPS_NAME;
         }
 
         private static string getJsonFromResponse(string responseText)
@@ -107,20 +108,33 @@ namespace myKing
             return rro;
         }
 
+        private static dynamic getJsonFromResponse(Session oS)
+        {
+            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+            string jsonString = getJsonFromResponse(responseText);
+            dynamic json = Json.Decode(jsonString);
+            return json;
+        }
+
+
         public static LoginInfo getLogin_login(Fiddler.Session oS, string sid)
         {
             LoginInfo info = new LoginInfo() { sid = null};
             string sBody = string.Format("{{\"type\":\"WEB_BROWSER\", \"loginCode\":\"{0}\"}}", sid);
             requestReturnObject rro = goGenericRequest(oS, sid, "Login.login", false, sBody);
-            if (rro.success)
-            {
-                string responseText = Encoding.UTF8.GetString(rro.session.responseBodyBytes);
-                string jsonString = getJsonFromResponse(responseText);
-                dynamic json = Json.Decode(jsonString);
+            if (!rro.success) return info;
+            dynamic json = getJsonFromResponse(rro.session);
+            info.sid = sid;
+            info.serverTitle = json.serverTitle;
+            info.nickName = json.nickName;
 
-                info.sid = sid;
-                info.serverTitle = json.serverTitle;
-                info.nickName = json.nickName;
+            rro = goGenericRequest(oS, sid, "Player.getProperties");
+            if (!rro.success)   return info;
+            json = getJsonFromResponse(rro.session);
+            DynamicJsonArray pvs = (DynamicJsonArray)json.pvs;
+            foreach (dynamic j in pvs)
+            {
+                if (j.p == "CORPS_NAME") info.CORPS_NAME = j.v;
             }
             return info;
         }
