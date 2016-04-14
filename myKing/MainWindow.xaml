@@ -11,6 +11,7 @@
         <ListView x:Name="lvPlayers" HorizontalAlignment="Left" Height="100" Margin="10,37,0,0" VerticalAlignment="Top" Width="772">
             <ListView.View>
                 <GridView>
+                    <GridViewColumn Header="SID" Width="100" DisplayMemberBinding="{Binding Sid}"/>
                     <GridViewColumn Header="伺服" Width="100" DisplayMemberBinding="{Binding Server}"/>
                     <GridViewColumn Header="名稱" Width="100" DisplayMemberBinding="{Binding NickName}"/>
                     <GridViewColumn Header="勢力" Width="100" DisplayMemberBinding="{Binding CorpsName}"/>

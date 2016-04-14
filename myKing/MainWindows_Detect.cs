@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using System.Windows;
+using static myKing.myKingInterface;
 
 namespace myKing
 {
@@ -13,6 +14,13 @@ namespace myKing
     {
         const string ICANTW_HOST = "icantw.com";
         const string ICANTW_PATH = "/m.do";
+
+        void UpdateAccountList()
+        {
+            GameAccount ga = accounts.Last();
+            displayAccounts.Add(ga);
+
+        }
 
 
         void AfterSessionCompleteHandler(Fiddler.Session oS)
@@ -55,8 +63,13 @@ namespace myKing
 
                 if (oGA != null)
                 {
-                    string oGAsid = oGA.Sid;
-                    myKingInterface.getLogin_login(oS, sid);
+                    LoginInfo info = myKingInterface.getLogin_login(oS, sid);
+                    accounts.Last().Server = info.serverTitle;
+                    accounts.Last().NickName = info.nickName;
+
+                    Application.Current.Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)(() => UpdateAccountList()));
                 }
             }
         }
