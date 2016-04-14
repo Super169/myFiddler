@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fiddler;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace myKing
 {
-    class GameAccount : INotifyPropertyChanged
+
+    class GameAccount
     {
         public string Sid { get; set; }
         public string Account { get; set; }
@@ -17,16 +19,13 @@ namespace myKing
         public string CorpsName { get; set; }
         public string Level { get; set; }
         public string VipLevel { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
+        public Session Session { get; set; }
     }
+
+    class AccountKey
+    {
+        public string account { get; set; }
+        public string sid { get; set;  }
+    }
+
 }

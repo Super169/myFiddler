@@ -29,22 +29,28 @@ namespace myKing
             {
                 case GameStatus.Idle:
                     btnDetect.Content = "偵測帳戶";
+                    btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
                 case GameStatus.DetectAccount:
                     btnDetect.Content = "停止偵測";
+                    btnGetHeroInfo.IsEnabled = false;
                     break;
 
             }
         }
 
-        void UpdateAccountList()
+        void UpdateAccountList(GameAccount oGA)
         {
-            GameAccount ga = accounts.Last();
-            displayAccounts.Add(ga);
-
+            lock(accountsLocker)
+            {
+                GameAccount oExists = displayAccounts.SingleOrDefault(x => x.Account == oGA.Account);
+                if (oExists != null) displayAccounts.Remove(oExists);
+                displayAccounts.Add(oGA);
+            }
         }
 
 
+        // AfterSessionCompleteHandler only used for account detection
         void AfterSessionCompleteHandler(Fiddler.Session oS)
         {
             string hostname = oS.hostname.ToLower();
@@ -61,64 +67,59 @@ namespace myKing
 
                 if (sid == null) return;
 
-                bool accountExists = false;
-                GameAccount oGA = null;
-                lock (accountsLocker)
+                AccountKey oAK = null;
+                lock(accountsLocker)
                 {
-                    foreach (GameAccount ac in accounts)
+                    if (!accounts.Exists(x => x.sid == sid))
                     {
-                        if (accountExists = (ac.Sid == sid)) break;
-                    }
-                    if (!accountExists)
-                    {
-                        try
-                        {
-                            oGA = new GameAccount() { Sid = sid };
-                            accounts.Add(oGA);
-
-                        } catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
+                        oAK = new AccountKey() { sid = sid };
+                        accounts.Add(oAK);
                     }
                 }
 
-                if (oGA != null)
-                {
-                    LoginInfo info = myKingInterface.getLogin_login(oS, sid);
-                    accounts.Last().Account = info.account;
-                    accounts.Last().Server = info.serverTitle;
-                    accounts.Last().NickName = info.nickName;
-                    accounts.Last().CorpsName = info.CORPS_NAME;
-                    accounts.Last().Level = info.LEVEL;
-                    accounts.Last().VipLevel = info.VIP_LEVEL;
+                if (oAK == null) return;
+                LoginInfo info = myKingInterface.getLogin_login(oS, sid);
 
-                    Application.Current.Dispatcher.BeginInvoke(
-                        System.Windows.Threading.DispatcherPriority.Normal,
-                        (Action)(() => UpdateAccountList()));
+                if (info.sid == null)
+                {
+                    // Error reading sid, remove the key
+                    lock (accountsLocker)
+                    {
+                        accounts.Remove(oAK);
+                        return;
+                    }
                 }
+
+                GameAccount oGA = new GameAccount()
+                {
+                    Sid = sid,
+                    Account = info.account,
+                    Server = info.serverTitle,
+                    NickName = info.nickName,
+                    Level = info.LEVEL,
+                    VipLevel = info.VIP_LEVEL,
+                    Session = oS
+                };
+
+
+                AccountKey oFindAccount = accounts.SingleOrDefault(x => x.account == info.account);
+                lock(accountsLocker)
+                {
+                    if (oFindAccount == null)
+                    { 
+                        oAK.account = info.account;
+                    }
+                    else
+                    {
+                        oFindAccount.sid = info.sid;
+                        accounts.Remove(oAK);
+                    }
+                }
+                Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    (Action)(() => UpdateAccountList(oGA)));
             }
         }
 
-        private void btnDetect_Click(object sender, RoutedEventArgs e)
-        {
-            if (gameStatus == GameStatus.Idle)
-            {
-                // TODO: Detect running accounts in current computer using FiddlerCore
-                if (!myFiddler.IsStarted())
-                {
-                    SetGameStatus(GameStatus.DetectAccount);
-                    myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
-                    myFiddler.ConfigFiddler("IcanTW");
-                    myFiddler.Startup(true);
-                }
-
-            } else 
-            {
-                myFiddler.Shutdown();
-                SetGameStatus(GameStatus.Idle);
-            }
-
-        }
     }
 }

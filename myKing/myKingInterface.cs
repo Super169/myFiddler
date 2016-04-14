@@ -86,6 +86,12 @@ namespace myKing
             rro.msg = "";
             rro.session = null;
 
+            if (!myFiddler.IsStarted())
+            {
+                rro.msg = "Fiddler engine not yet started";
+                return rro;
+            }
+
             if (oS == null)
             {
                 rro.msg = "<<No session captured>>";
@@ -98,7 +104,8 @@ namespace myKing
                 byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
                 oS.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
 
-                if (!myFiddler.IsStarted()) myFiddler.Startup(false);
+                // For safety, try not to start Fiddler inside, should be started before calling this method
+                // if (!myFiddler.IsStarted()) myFiddler.Startup(false);
 
                 // TODO: need to have OnStageChangeHandler for waiting method?
                 // rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oS.oRequest.headers, requestBodyBytes, null, OnStageChangeHandler);
@@ -112,21 +119,26 @@ namespace myKing
             return rro;
         }
 
-        private static dynamic getJsonFromResponse(Session oS)
+        private static dynamic getJsonFromResponse(string responseText)
         {
             dynamic json = null;
             try
             {
-                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
                 string jsonString = CleanUpResponse(responseText);
                 json = Json.Decode(jsonString);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine("Error getting response:\n{0}", ex.Message);
             }
             return json;
         }
 
+        private static dynamic getJsonFromResponse(Session oS)
+        {
+            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+            return getJsonFromResponse(responseText);
+        }
 
         public static LoginInfo getLogin_login(Fiddler.Session oS, string sid)
         {
@@ -152,5 +164,45 @@ namespace myKing
             }
             return info;
         }
+        
+
+        public static string getHeroInfo(Session oS, string sid)
+        {
+            requestReturnObject rro = goGenericRequest(oS, sid, "Hero.getPlayerHeroList");
+            if (!rro.success) return ("Fail getting Hero Information:\n" + rro.msg);
+            return ExtractHeroInfo(rro.session);
+        }
+
+        // For Hero.getPlayerHeroList
+        public static string ExtractHeroInfo(Session oS)
+        {
+            string info = "";
+            try
+            {
+                dynamic json = getJsonFromResponse(oS);
+
+                DynamicJsonArray heros = json.heros;
+
+                foreach (dynamic hero in heros)
+                {
+                    string heroInfo = string.Format("{0} : {1} : {2} : {3} : {4} : {5}", hero.idx, hero.nm, hero.army, hero.lv, hero.power, hero.cfd);
+                    heroInfo += string.Format(" : {0} : {1} : {2} : {3} : {4} : {5}", hero.intl, hero.strg, hero.chrm, hero.attk, hero.dfnc, hero.spd);
+                    if (hero.amftLvs is DynamicJsonArray)
+                    {
+                        DynamicJsonArray s = (DynamicJsonArray)hero.amftLvs;
+                        heroInfo += string.Format(" : [{0},{1},{2},{3},{4}]", s.ElementAt(0), s.ElementAt(1), s.ElementAt(2), s.ElementAt(3), s.ElementAt(4));
+                    }
+                    info += heroInfo + "\n";
+                }
+            }
+            catch (Exception ex)
+            {
+                info = "Fail getting hero info:\n" + ex.Message;
+            }
+
+            return info;
+        }
+
+
     }
 }

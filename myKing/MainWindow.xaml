@@ -5,21 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:myKing"
         mc:Ignorable="d"
-        Title="自動大皇帝" Height="640" Width="800">
+        Title="自動大皇帝" Height="640" Width="852">
     <Grid>
         <Button x:Name="btnDetect" Content="偵測帳戶" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-2.982,-1.645" Click="btnDetect_Click"/>
-        <ListView x:Name="lvPlayers" HorizontalAlignment="Left" Height="110" Margin="10,37,0,0" VerticalAlignment="Top" Width="772">
+        <ListView x:Name="lvPlayers" Height="110" Margin="10,37,10,0" VerticalAlignment="Top">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="帳號" Width="100" DisplayMemberBinding="{Binding Account}"/>
+                    <GridViewColumn Header="帳號" Width="140" DisplayMemberBinding="{Binding Account}"/>
                     <GridViewColumn Header="伺服" Width="100" DisplayMemberBinding="{Binding Server}"/>
                     <GridViewColumn Header="名稱" Width="100" DisplayMemberBinding="{Binding NickName}"/>
                     <GridViewColumn Header="勢力" Width="100" DisplayMemberBinding="{Binding CorpsName}"/>
                     <GridViewColumn Header="等級" Width="30" DisplayMemberBinding="{Binding Level}"/>
                     <GridViewColumn  Header="VIP" Width="30" DisplayMemberBinding="{Binding VipLevel}"/>
+                    <GridViewColumn Header="sid" Width="280" DisplayMemberBinding="{Binding Sid}"/>
                 </GridView>
             </ListView.View>
         </ListView>
+        <Button x:Name="btnGetHeroInfo" Content="英雄資料" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.64,-0.725" Click="btnGetHeroInfo_Click"/>
+        <TextBox x:Name="txtResult" Margin="10,177,10,10" TextWrapping="Wrap" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
 
     </Grid>
 </Window>
