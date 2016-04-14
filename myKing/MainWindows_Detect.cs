@@ -15,6 +15,28 @@ namespace myKing
         const string ICANTW_HOST = "icantw.com";
         const string ICANTW_PATH = "/m.do";
 
+        enum GameStatus
+        {
+            Idle, DetectAccount, Waiting
+        }
+
+        GameStatus gameStatus = GameStatus.Idle;
+
+        void SetGameStatus(GameStatus newStatus)
+        {
+            this.gameStatus = newStatus;
+            switch (newStatus)
+            {
+                case GameStatus.Idle:
+                    btnDetect.Content = "偵測帳戶";
+                    break;
+                case GameStatus.DetectAccount:
+                    btnDetect.Content = "停止偵測";
+                    break;
+
+            }
+        }
+
         void UpdateAccountList()
         {
             GameAccount ga = accounts.Last();
@@ -64,9 +86,12 @@ namespace myKing
                 if (oGA != null)
                 {
                     LoginInfo info = myKingInterface.getLogin_login(oS, sid);
+                    accounts.Last().Account = info.account;
                     accounts.Last().Server = info.serverTitle;
                     accounts.Last().NickName = info.nickName;
                     accounts.Last().CorpsName = info.CORPS_NAME;
+                    accounts.Last().Level = info.LEVEL;
+                    accounts.Last().VipLevel = info.VIP_LEVEL;
 
                     Application.Current.Dispatcher.BeginInvoke(
                         System.Windows.Threading.DispatcherPriority.Normal,
@@ -77,29 +102,23 @@ namespace myKing
 
         private void btnDetect_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Detect running accounts in current computer using FiddlerCore
-            if (!myFiddler.IsStarted())
+            if (gameStatus == GameStatus.Idle)
             {
-                myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
-                myFiddler.ConfigFiddler("IcanTW");
-                myFiddler.Startup(true);
+                // TODO: Detect running accounts in current computer using FiddlerCore
+                if (!myFiddler.IsStarted())
+                {
+                    SetGameStatus(GameStatus.DetectAccount);
+                    myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
+                    myFiddler.ConfigFiddler("IcanTW");
+                    myFiddler.Startup(true);
+                }
+
+            } else 
+            {
+                myFiddler.Shutdown();
+                SetGameStatus(GameStatus.Idle);
             }
 
-
-/*
-            switch (accounts.Count)
-            {
-                case 0:
-                    accounts.Add(new GameAccount() { Server = "S44 群英會盟", NickName = "超級一六九", CorpsName = "江左聯盟", Level = 91 });
-                    break;
-                case 1:
-                    accounts.Add(new GameAccount() { Server = "S45 眾志成城", NickName = "無名無姓", CorpsName = "", Level = 53 });
-                    break;
-                case 2:
-                    accounts.Add(new GameAccount() { Server = "S46 爭霸天下", NickName = "怕死的水子遠", CorpsName = "九輪燎原", Level = 89 });
-                    break;
-            }
-*/
         }
     }
 }

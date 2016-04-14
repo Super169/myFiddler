@@ -11,10 +11,12 @@ namespace myKing
     class GameAccount : INotifyPropertyChanged
     {
         public string Sid { get; set; }
+        public string Account { get; set; }
         public string Server { get; set; }
         public string NickName { get; set; }
         public string CorpsName { get; set; }
-        public int Level { get; set; }
+        public string Level { get; set; }
+        public string VipLevel { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

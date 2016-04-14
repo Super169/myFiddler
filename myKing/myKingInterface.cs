@@ -25,10 +25,14 @@ namespace myKing
             public string account;
             public string nickName;
             public string CORPS_NAME;
+            public string LEVEL;
+            public string VIP_LEVEL;
         }
 
-        private static string getJsonFromResponse(string responseText)
+        private static string CleanUpResponse(string responseText)
         {
+            if (responseText == null) return null;
+
             string jsonString = null;
 
             string[] data = responseText.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -110,9 +114,16 @@ namespace myKing
 
         private static dynamic getJsonFromResponse(Session oS)
         {
-            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-            string jsonString = getJsonFromResponse(responseText);
-            dynamic json = Json.Decode(jsonString);
+            dynamic json = null;
+            try
+            {
+                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+                string jsonString = CleanUpResponse(responseText);
+                json = Json.Decode(jsonString);
+            } catch (Exception ex)
+            {
+                Console.WriteLine("Error getting response:\n{0}", ex.Message);
+            }
             return json;
         }
 
@@ -125,6 +136,7 @@ namespace myKing
             if (!rro.success) return info;
             dynamic json = getJsonFromResponse(rro.session);
             info.sid = sid;
+            info.account = json.account;
             info.serverTitle = json.serverTitle;
             info.nickName = json.nickName;
 
@@ -135,6 +147,8 @@ namespace myKing
             foreach (dynamic j in pvs)
             {
                 if (j.p == "CORPS_NAME") info.CORPS_NAME = j.v;
+                else if (j.p == "LEVEL") info.LEVEL = j.v;
+                else if (j.p == "VIP_LEVEL") info.VIP_LEVEL = j.v;
             }
             return info;
         }
