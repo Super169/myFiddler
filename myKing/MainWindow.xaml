@@ -1,0 +1,23 @@
+﻿<Window x:Class="myKing.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:myKing"
+        mc:Ignorable="d"
+        Title="自動大皇帝" Height="640" Width="800">
+    <Grid>
+        <Button x:Name="btnDetect" Content="偵測帳戶" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-2.982,-1.645" Click="btnDetect_Click"/>
+        <ListView x:Name="lvPlayers" HorizontalAlignment="Left" Height="100" Margin="10,37,0,0" VerticalAlignment="Top" Width="772">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="伺服" Width="100" DisplayMemberBinding="{Binding Server}"/>
+                    <GridViewColumn Header="名稱" Width="100" DisplayMemberBinding="{Binding NickName}"/>
+                    <GridViewColumn Header="勢力" Width="100" DisplayMemberBinding="{Binding CorpsName}"/>
+                    <GridViewColumn Header="等級" Width="30" DisplayMemberBinding="{Binding Level}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </Grid>
+</Window>
