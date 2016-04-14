@@ -30,10 +30,12 @@ namespace myKing
                 case GameStatus.Idle:
                     btnDetect.Content = "偵測帳戶";
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
+                    btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
                 case GameStatus.DetectAccount:
                     btnDetect.Content = "停止偵測";
                     btnGetHeroInfo.IsEnabled = false;
+                    btnDecreeInfo.IsEnabled = false;
                     break;
 
             }
@@ -98,9 +100,9 @@ namespace myKing
                     NickName = info.nickName,
                     Level = info.LEVEL,
                     VipLevel = info.VIP_LEVEL,
+                    Heros = new List<HeroInfo>(),
                     Session = oS
                 };
-
 
                 AccountKey oFindAccount = accounts.SingleOrDefault(x => x.account == info.account);
                 lock(accountsLocker)

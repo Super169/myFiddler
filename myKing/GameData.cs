@@ -19,6 +19,7 @@ namespace myKing
         public string CorpsName { get; set; }
         public string Level { get; set; }
         public string VipLevel { get; set; }
+        public List<HeroInfo> Heros { get; set; }
         public Session Session { get; set; }
     }
 
@@ -28,4 +29,19 @@ namespace myKing
         public string sid { get; set;  }
     }
 
+    class HeroInfo
+    {
+        public int idx { get; set; }
+        public string nm { get; set; }
+        public string army { get; set; }
+        public int lv { get; set; }
+        public int power { get; set; }
+        public int cfd { get; set; }
+        public int intl { get; set; }
+        public int strg { get; set; }
+        public int chrm { get; set; }
+        public int attk { get; set; }
+        public int dfnc { get; set; }
+        public int spd { get; set; }
+    }
 }

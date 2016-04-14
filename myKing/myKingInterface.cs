@@ -29,7 +29,7 @@ namespace myKing
             public string VIP_LEVEL;
         }
 
-        private static string CleanUpResponse(string responseText)
+        public static string CleanUpResponse(string responseText)
         {
             if (responseText == null) return null;
 
@@ -166,11 +166,23 @@ namespace myKing
         }
         
 
-        public static string getHeroInfo(Session oS, string sid)
+        public static requestReturnObject getHeroInfo(Session oS, string sid)
         {
-            requestReturnObject rro = goGenericRequest(oS, sid, "Hero.getPlayerHeroList");
-            if (!rro.success) return ("Fail getting Hero Information:\n" + rro.msg);
-            return ExtractHeroInfo(rro.session);
+            return goGenericRequest(oS, sid, "Hero.getPlayerHeroList");
+        }
+
+        public static DynamicJsonArray ExtractHeros(Session oS)
+        {
+            DynamicJsonArray heros;
+            try
+            {
+                dynamic json = getJsonFromResponse(oS);
+                heros = json.heros;
+            } catch (Exception ex)
+            {
+                heros = null;
+            }
+            return heros;
         }
 
         // For Hero.getPlayerHeroList
@@ -203,6 +215,9 @@ namespace myKing
             return info;
         }
 
-
+        public static requestReturnObject getDecreeInfo(Session oS, string sid)
+        {
+            return goGenericRequest(oS, sid, "Manor.decreeInfo");
+        }
     }
 }

@@ -23,6 +23,7 @@
         </ListView>
         <Button x:Name="btnGetHeroInfo" Content="英雄資料" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.64,-0.725" Click="btnGetHeroInfo_Click"/>
         <TextBox x:Name="txtResult" Margin="10,177,10,10" TextWrapping="Wrap" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+        <Button x:Name="btnDecreeInfo" Content="軍府資料" HorizontalAlignment="Left" Margin="90,152,0,0" VerticalAlignment="Top" Width="74" Click="btnDecreeInfo_Click"/>
 
     </Grid>
 </Window>
