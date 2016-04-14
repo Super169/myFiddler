@@ -1,0 +1,26 @@
+Info:
+
+Login.login
+- server_id   : 2077310044
+- serverTitle : ":"S44 群英會盟
+- account     : 1001018928_pubgame
+- nickName    : 超級一六九
+- regTime     :  1450939879
+- serverTime  :  1450410600
+
+Player.getProperties
+- EXP          : 138643
+- LEVEL_UP_EXP : 27000
+- LEVEL        : 90
+- VIP_LEVEL    : 3
+- GOOD         : 1630
+- SILVER       : 691563
+- FOOD         : 818281
+- IRON         : 37724
+- EXPLOIT      : 9091
+- ARENA_COIN   : 25214
+- XIYU_COIN    : 4797
+- MAX_FOOD     : 4400000
+- MAX_SILVER   : 5920000
+- MAX_IRON     : 800000
+- CORPS_NAME   : 江左聯盟
