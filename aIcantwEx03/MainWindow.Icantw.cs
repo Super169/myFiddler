@@ -100,6 +100,8 @@ namespace aIcantwEx03
             string sBody = "";
             switch (sAction)
             {
+                case "BossWar.bossInfo":
+                case "BossWar.pk":
                 case "Campaign.eliteBuyTime":
                 case "Campaign.fightNext":
                 case "Campaign.getLeftTimes":

@@ -119,7 +119,7 @@ namespace myKing
             return rro;
         }
 
-        private static dynamic getJsonFromResponse(string responseText)
+        public static dynamic getJsonFromResponse(string responseText)
         {
             dynamic json = null;
             try
@@ -134,7 +134,7 @@ namespace myKing
             return json;
         }
 
-        private static dynamic getJsonFromResponse(Session oS)
+        public static dynamic getJsonFromResponse(Session oS)
         {
             string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
             return getJsonFromResponse(responseText);
@@ -180,6 +180,7 @@ namespace myKing
                 heros = json.heros;
             } catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 heros = null;
             }
             return heros;

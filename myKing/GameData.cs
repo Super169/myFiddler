@@ -20,6 +20,7 @@ namespace myKing
         public string Level { get; set; }
         public string VipLevel { get; set; }
         public List<HeroInfo> Heros { get; set; }
+        public List<DecInfo> decHeros { get; set; }
         public Session Session { get; set; }
     }
 
@@ -43,5 +44,11 @@ namespace myKing
         public int attk { get; set; }
         public int dfnc { get; set; }
         public int spd { get; set; }
+    }
+
+    class DecInfo
+    {
+        public int decId { get; set; }
+        public int[] heroIdx = new int[5];
     }
 }

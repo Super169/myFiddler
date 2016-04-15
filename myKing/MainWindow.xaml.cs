@@ -94,14 +94,77 @@ namespace myKing
 
         private void btnDecreeInfo_Click(object sender, RoutedEventArgs e)
         {
+            string info = "";
+
             GameAccount oGA = (GameAccount)lvPlayers.SelectedItem;
             if (oGA == null) return;
+
+            oGA.decHeros.Clear();
+
             myFiddler.Startup(false);
+
+            // Retrieve hero information if not yet retrieved
+            if (oGA.Heros.Count == 0)
+            {
+
+            }
+
             myKingInterface.requestReturnObject rro = myKingInterface.getDecreeInfo(oGA.Session, oGA.Sid);
             if (rro.success)
             {
-                txtResult.Text = myKingInterface.CleanUpResponse(Encoding.UTF8.GetString(rro.session.responseBodyBytes));
+//                txtResult.Text = myKingInterface.CleanUpResponse(Encoding.UTF8.GetString(rro.session.responseBodyBytes));
+                try
+                {
+                    dynamic json = myKingInterface.getJsonFromResponse(rro.session);
+
+                    if (json != null)
+                    {
+                        DynamicJsonArray decHeros = json.decHeros;
+
+                        foreach (dynamic decree in decHeros)
+                        {
+                            DecInfo decInfo = new DecInfo() { decId = decree.decId };
+                            info += decInfo.decId.ToString() + ": ";
+                            DynamicJsonArray heros = decree.heros;
+                            foreach (dynamic hero in heros)
+                            {
+                                int heroIdx = (hero.open ? hero.heroIdx : -1);
+
+                                decInfo.heroIdx[hero.pos - 1] = heroIdx;
+                                if (heroIdx > 0)
+                                {
+                                    HeroInfo hi = oGA.Heros.SingleOrDefault(x => x.idx == heroIdx);
+                                    if (hi == null) {
+                                        info += "[????]";
+                                    } else
+                                    {
+                                        info += "[" + hi.nm + "] ";
+                                    }
+
+                                } else if (heroIdx == 0)
+                                {
+                                    info += "[+] ";
+                                } else
+                                {
+                                    info += "[-] ";
+                                }
+                            }
+                            oGA.decHeros.Add(decInfo);
+                            info += "\n";
+                        }
+
+                    }
+
+                } catch (Exception ex)
+                {
+                    info = "Error reading decreeInfo:\n" + ex.Message;
+                }
+            } else
+            {
+                info = "Error reading decreeInfo:\n" + rro.msg;
             }
+            txtResult.Text = info;
+
             myFiddler.Shutdown();
         }
     }

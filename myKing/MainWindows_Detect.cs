@@ -101,6 +101,7 @@ namespace myKing
                     Level = info.LEVEL,
                     VipLevel = info.VIP_LEVEL,
                     Heros = new List<HeroInfo>(),
+                    decHeros = new List<DecInfo>(),
                     Session = oS
                 };
 

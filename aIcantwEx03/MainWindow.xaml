@@ -50,6 +50,8 @@
             <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="170,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" RenderTransformOrigin="-0.23,0.932" Click="btnLoadSession_Click"/>
             <Button x:Name="btnJson" Content="JSON" HorizontalAlignment="Left" Margin="250,0,0,10" Width="76" Height="22" VerticalAlignment="Bottom" Click="btnJson_Click"/>
             <ComboBox x:Name="cboAction" HorizontalAlignment="Right" Margin="0,0,250,10" VerticalAlignment="Bottom" Width="200">
+                <ComboBoxItem Content="BossWar.bossInfo | 神將無雙資料"/>
+                <ComboBoxItem Content="BossWar.pk | 神將無雙進入"/>
                 <ComboBoxItem Content="Campaign.eliteBuyTime"/>
                 <ComboBoxItem Content="Campaign.fightNext"/>
                 <ComboBoxItem Content="Campaign.getLeftTimes"/>
