@@ -47,14 +47,14 @@ namespace myKing
                     btnDetect.Content = "偵測帳戶";
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
-                    btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
+                    // btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
                 case GameStatus.DetectAccount:
                     btnDetect.Content = "停止偵測";
                     btnGetHeroInfo.IsEnabled = false;
                     btnDecreeInfo.IsEnabled = false;
-                    btnBossWar.IsEnabled = false;
+                    // btnBossWar.IsEnabled = false;
                     btnBossWarSettings.IsEnabled = false;
                     break;
 
@@ -202,11 +202,20 @@ namespace myKing
             GameAccount oGA = getSelectedAccount(true);
             if ((oGA == null) || (!herosReady(oGA, true))) return;
 
-            var Window = (Window)System.Windows.Application.LoadComponent(new Uri("BossWarSettings.xaml", UriKind.Relative));
+            BossWarSettings Window = new BossWarSettings(); 
+            Window.Owner = this;
+            Window.Title = "神將無雙佈陣";
+            Window.setData(oGA);
+            Window.Show();
+
+        }
+
+        private void btnBossWar_Click(object sender, RoutedEventArgs e)
+        {
+            BossWarSettings Window = new BossWarSettings();
             Window.Owner = this;
             Window.Title = "神將無雙佈陣";
             Window.Show();
-
         }
     }
 

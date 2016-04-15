@@ -5,21 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:myKing"
         mc:Ignorable="d"
-        Title="BossWarSettings" Height="233.409" Width="420.824">
+        Title="BossWarSettings" Height="234.782" Width="422.197">
     <Grid>
-        <TextBlock x:Name="tb0101" HorizontalAlignment="Left" Margin="43,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0102" HorizontalAlignment="Left" Margin="108,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0201" HorizontalAlignment="Left" Margin="10,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0202" HorizontalAlignment="Left" Margin="75,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0203" HorizontalAlignment="Left" Margin="140,65,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0301" HorizontalAlignment="Left" Margin="43,120,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <TextBlock x:Name="tb0302" HorizontalAlignment="Left" Margin="108,120,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="50" Width="60" Background="#FF7F7F7F"/>
-        <ListView x:Name="lvHero" HorizontalAlignment="Left" Height="182" Margin="217,10,0,0" VerticalAlignment="Top" Width="186">
+        <ListView x:Name="lvHero" HorizontalAlignment="Left" Height="160" Margin="218,10,0,0" VerticalAlignment="Top" Width="186">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn/>
+                    <GridViewColumn Header="英雄" Width="100" DisplayMemberBinding="{Binding nm}"/>
                 </GridView>
             </ListView.View>
         </ListView>
-    </Grid>
+        <Button x:Name="btnChief" Content="設定主帥" HorizontalAlignment="Left" Margin="10,175,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btnClear" Content="清除" HorizontalAlignment="Left" Margin="125,175,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btnSave" Content="儲存" HorizontalAlignment="Left" Margin="241,175,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btnCancel" Content="取消" HorizontalAlignment="Left" Margin="329,175,0,0" VerticalAlignment="Top" Width="75"/>
+        <local:WarHero x:Name="wh00" HorizontalAlignment="Left" Margin="45,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="wh00_Click"/>
+        <local:WarHero x:Name="wh01" HorizontalAlignment="Left" Margin="108,10,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh02" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh03" HorizontalAlignment="Left" Margin="73,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh04" HorizontalAlignment="Left" Margin="136,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh05" HorizontalAlignment="Left" Margin="45,120,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh06" HorizontalAlignment="Left" Margin="110,120,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+</Grid>
 </Window>

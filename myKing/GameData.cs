@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 namespace myKing
 {
 
-    class GameAccount
+
+    public class GameAccount
     {
         public string Sid { get; set; }
         public string Account { get; set; }
@@ -32,13 +33,13 @@ namespace myKing
         }
     }
 
-    class AccountKey
+    public class AccountKey
     {
         public string account { get; set; }
         public string sid { get; set;  }
     }
 
-    class HeroInfo
+    public class HeroInfo
     {
         public int idx { get; set; }
         public string nm { get; set; }
@@ -54,7 +55,7 @@ namespace myKing
         public int spd { get; set; }
     }
 
-    class DecInfo
+    public class DecInfo
     {
         public int decId { get; set; }
         public int[] heroIdx = new int[5];
