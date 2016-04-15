@@ -15,39 +15,14 @@ namespace myKing
         const string ICANTW_HOST = "icantw.com";
         const string ICANTW_PATH = "/m.do";
 
-        enum GameStatus
-        {
-            Idle, DetectAccount, Waiting
-        }
-
-        GameStatus gameStatus = GameStatus.Idle;
-
-        void SetGameStatus(GameStatus newStatus)
-        {
-            this.gameStatus = newStatus;
-            switch (newStatus)
-            {
-                case GameStatus.Idle:
-                    btnDetect.Content = "偵測帳戶";
-                    btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
-                    btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
-                    break;
-                case GameStatus.DetectAccount:
-                    btnDetect.Content = "停止偵測";
-                    btnGetHeroInfo.IsEnabled = false;
-                    btnDecreeInfo.IsEnabled = false;
-                    break;
-
-            }
-        }
 
         void UpdateAccountList(GameAccount oGA)
         {
             lock(accountsLocker)
             {
-                GameAccount oExists = displayAccounts.SingleOrDefault(x => x.Account == oGA.Account);
-                if (oExists != null) displayAccounts.Remove(oExists);
-                displayAccounts.Add(oGA);
+                GameAccount oExists = gameAccounts.SingleOrDefault(x => x.Account == oGA.Account);
+                if (oExists != null) gameAccounts.Remove(oExists);
+                gameAccounts.Add(oGA);
             }
         }
 

@@ -21,7 +21,15 @@ namespace myKing
         public string VipLevel { get; set; }
         public List<HeroInfo> Heros { get; set; }
         public List<DecInfo> decHeros { get; set; }
+        public int[] BossWar = new int[7];
         public Session Session { get; set; }
+
+        public string HeroName(int heroIdx)
+        {
+            HeroInfo hi = this.Heros.SingleOrDefault(x => x.idx == heroIdx);
+            if (hi == null) return "????";
+            return hi.nm;
+        }
     }
 
     class AccountKey

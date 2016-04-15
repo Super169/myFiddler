@@ -186,35 +186,51 @@ namespace myKing
             return heros;
         }
 
-        // For Hero.getPlayerHeroList
-        public static string ExtractHeroInfo(Session oS)
+        public static bool readHerosInfo(GameAccount oGA)
         {
-            string info = "";
+            oGA.Heros.Clear();
+            myFiddler.Startup(false);
+            myKingInterface.requestReturnObject rro = myKingInterface.getHeroInfo(oGA.Session, oGA.Sid);
+            myFiddler.Shutdown();
+
+            bool success = false;
             try
             {
-                dynamic json = getJsonFromResponse(oS);
-
-                DynamicJsonArray heros = json.heros;
-
-                foreach (dynamic hero in heros)
+                if (success = rro.success)
                 {
-                    string heroInfo = string.Format("{0} : {1} : {2} : {3} : {4} : {5}", hero.idx, hero.nm, hero.army, hero.lv, hero.power, hero.cfd);
-                    heroInfo += string.Format(" : {0} : {1} : {2} : {3} : {4} : {5}", hero.intl, hero.strg, hero.chrm, hero.attk, hero.dfnc, hero.spd);
-                    if (hero.amftLvs is DynamicJsonArray)
+                    DynamicJsonArray heros = myKingInterface.ExtractHeros(rro.session);
+                    if (heros != null)
                     {
-                        DynamicJsonArray s = (DynamicJsonArray)hero.amftLvs;
-                        heroInfo += string.Format(" : [{0},{1},{2},{3},{4}]", s.ElementAt(0), s.ElementAt(1), s.ElementAt(2), s.ElementAt(3), s.ElementAt(4));
+                        foreach (dynamic hero in heros)
+                        {
+                            HeroInfo hi = new HeroInfo()
+                            {
+                                idx = hero.idx,
+                                nm = hero.nm,
+                                lv = hero.lv,
+                                power = hero.power,
+                                cfd = hero.cfd,
+                                intl = hero.intl,
+                                strg = hero.strg,
+                                chrm = hero.chrm,
+                                attk = hero.attk,
+                                dfnc = hero.dfnc,
+                                spd = hero.spd
+                            };
+                            oGA.Heros.Add(hi);
+                        };
+                        success = true;
                     }
-                    info += heroInfo + "\n";
                 }
-            }
-            catch (Exception ex)
-            {
-                info = "Fail getting hero info:\n" + ex.Message;
-            }
 
-            return info;
+            }
+            catch (Exception)
+            {
+                success = false;
+            }
+            return success;
         }
+
 
         public static requestReturnObject getDecreeInfo(Session oS, string sid)
         {

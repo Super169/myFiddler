@@ -70,7 +70,7 @@ namespace myKing
             return _sysProxy;
         }
 
-        public static void Startup(bool sysProxy = true)
+        public static void Startup(bool sysProxy = false)
         {
             FiddlerCoreStartupFlags oFCSF = FiddlerCoreStartupFlags.Default;
             if (!sysProxy) oFCSF &= ~FiddlerCoreStartupFlags.RegisterAsSystemProxy;

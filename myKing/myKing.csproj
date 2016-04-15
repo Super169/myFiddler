@@ -64,8 +64,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BossWarSettings.xaml.cs">
+      <DependentUpon>BossWarSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="myKingInterface.cs" />
     <Compile Include="SAZ-DotNetZip.cs" />
+    <Page Include="BossWarSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

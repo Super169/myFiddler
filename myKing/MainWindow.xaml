@@ -7,23 +7,34 @@
         mc:Ignorable="d"
         Title="自動大皇帝" Height="640" Width="852">
     <Grid>
-        <Button x:Name="btnDetect" Content="偵測帳戶" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-2.982,-1.645" Click="btnDetect_Click"/>
-        <ListView x:Name="lvPlayers" Height="110" Margin="10,37,10,0" VerticalAlignment="Top">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="帳號" Width="140" DisplayMemberBinding="{Binding Account}"/>
-                    <GridViewColumn Header="伺服" Width="100" DisplayMemberBinding="{Binding Server}"/>
-                    <GridViewColumn Header="名稱" Width="100" DisplayMemberBinding="{Binding NickName}"/>
-                    <GridViewColumn Header="勢力" Width="100" DisplayMemberBinding="{Binding CorpsName}"/>
-                    <GridViewColumn Header="等級" Width="30" DisplayMemberBinding="{Binding Level}"/>
-                    <GridViewColumn  Header="VIP" Width="30" DisplayMemberBinding="{Binding VipLevel}"/>
-                    <GridViewColumn Header="sid" Width="280" DisplayMemberBinding="{Binding Sid}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <Button x:Name="btnGetHeroInfo" Content="英雄資料" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.64,-0.725" Click="btnGetHeroInfo_Click"/>
-        <TextBox x:Name="txtResult" Margin="10,177,10,10" TextWrapping="Wrap" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
-        <Button x:Name="btnDecreeInfo" Content="軍府資料" HorizontalAlignment="Left" Margin="90,152,0,0" VerticalAlignment="Top" Width="74" Click="btnDecreeInfo_Click"/>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120*" MinHeight="60"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="450*" MinHeight="200" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <ListView x:Name="lvPlayers" Margin="10,6,10,4">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="帳號" Width="140" DisplayMemberBinding="{Binding Account}"/>
+                        <GridViewColumn Header="伺服" Width="100" DisplayMemberBinding="{Binding Server}"/>
+                        <GridViewColumn Header="名稱" Width="100" DisplayMemberBinding="{Binding NickName}"/>
+                        <GridViewColumn Header="勢力" Width="100" DisplayMemberBinding="{Binding CorpsName}"/>
+                        <GridViewColumn Header="等級" Width="30" DisplayMemberBinding="{Binding Level}"/>
+                        <GridViewColumn  Header="VIP" Width="30" DisplayMemberBinding="{Binding VipLevel}"/>
+                        <GridViewColumn Header="sid" Width="280" DisplayMemberBinding="{Binding Sid}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="#FFE2E1E1"/>
+        <Grid Grid.Row="2">
+            <Button x:Name="btnDetect" Content="偵測帳戶" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnDetect_Click"/>
+            <Button x:Name="btnGetHeroInfo" Content="英雄資料" Margin="0,10,249,0" VerticalAlignment="Top" Click="btnGetHeroInfo_Click" HorizontalAlignment="Right" Width="75"/>
+            <Button x:Name="btnDecreeInfo" Content="軍府資料" Margin="0,10,170,0" VerticalAlignment="Top" Click="btnDecreeInfo_Click" HorizontalAlignment="Right" Width="74"/>
+            <Button x:Name="btnBossWarSettings" Content="神將無雙佈陣" Margin="0,10,90,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="btnBossWarSettings_Click"/>
+            <Button x:Name="btnBossWar" Content="神將無雙" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+            <TextBox x:Name="txtResult" Margin="10,40,10,10" TextWrapping="Wrap" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+        </Grid>
     </Grid>
 </Window>
