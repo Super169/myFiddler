@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Helpers;
@@ -26,9 +27,6 @@ namespace myKing
 
         List<AccountKey> accounts = new List<AccountKey>();
 
-        // List<GameAccount> accounts = new List<GameAccount>();
-
-
         Object accountsLocker = new Object();
 
         enum GameStatus
@@ -37,6 +35,14 @@ namespace myKing
         }
 
         GameStatus gameStatus = GameStatus.Idle;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            this.Title = "大重帝輔助工具 之 神將無雙  v" + Assembly.GetExecutingAssembly().GetName().Version;
+            lvPlayers.ItemsSource = gameAccounts;
+            SetGameStatus(GameStatus.Idle);
+        }
 
         void SetGameStatus(GameStatus newStatus)
         {
@@ -62,13 +68,6 @@ namespace myKing
                     break;
 
             }
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            lvPlayers.ItemsSource = gameAccounts;
-            SetGameStatus(GameStatus.Idle);
         }
 
         private void btnDetect_Click(object sender, RoutedEventArgs e)
@@ -210,10 +209,11 @@ namespace myKing
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-            BossWarSettings Window = new BossWarSettings();
-            Window.Owner = this;
-            Window.Title = "神將無雙佈陣";
-            Window.Show();
+            MessageBox.Show("功能尚未公開");
+            //BossWarSettings Window = new BossWarSettings();
+            //Window.Owner = this;
+            //Window.Title = "神將無雙佈陣";
+            //Window.Show();
         }
     }
 

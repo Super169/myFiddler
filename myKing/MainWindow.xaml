@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:myKing"
         mc:Ignorable="d"
-        Title="自動大皇帝" Height="640" Width="852">
+        Title="大重帝輔助工具 之 神將無雙" Height="640" Width="852">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="120*" MinHeight="60"/>

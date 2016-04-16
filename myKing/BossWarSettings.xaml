@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:myKing"
         mc:Ignorable="d"
-        Title="BossWarSettings" Height="260.869" Width="461.247" MinHeight="250" MinWidth="480">
+        Title="BossWarSettings" Height="260.869" Width="461.247" MinHeight="250" MinWidth="480" WindowStartupLocation="CenterOwner">
     <Grid Margin="5,5,5,5">
         <ListView x:Name="lvHero" Margin="218,10,11,37" SelectionChanged="lvHero_SelectionChanged">
             <ListView.ItemContainerStyle>
