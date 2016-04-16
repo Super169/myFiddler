@@ -101,6 +101,8 @@ namespace aIcantwEx03
             switch (sAction)
             {
                 case "BossWar.bossInfo":
+                case "BossWar.enterWar":
+                case "BossWar.leaveWar":
                 case "BossWar.pk":
                 case "Campaign.eliteBuyTime":
                 case "Campaign.fightNext":
