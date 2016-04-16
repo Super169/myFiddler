@@ -10,6 +10,30 @@ using System.Threading.Tasks;
 namespace myKing
 {
 
+    [Serializable]
+    public class GameAccountProfile
+    {
+        public string Account { get; set; }
+        public int[] BossWarHeros = new int[7];
+        public int BossWarChiefIdx = -1;
+
+        public void fromGameAccount(GameAccount oGA)
+        {
+            this.Account = oGA.Account;
+            for (int i = 0; i < 7; i++) this.BossWarHeros[i] = oGA.BossWarHeros[i];
+            this.BossWarChiefIdx = oGA.BossWarChiefIdx;
+        }
+
+        public void toGameAccount(GameAccount oGA)
+        {
+            if (oGA.Account == this.Account)
+            {
+                for (int i = 0; i < 7; i++) oGA.BossWarHeros[i] = this.BossWarHeros[i];
+                oGA.BossWarChiefIdx = this.BossWarChiefIdx;
+            }
+        }
+
+    }
 
     public class GameAccount
     {

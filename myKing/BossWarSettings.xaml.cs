@@ -84,6 +84,7 @@ namespace myKing
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             this.Close();
         }
 
@@ -153,6 +154,7 @@ namespace myKing
                 oGA.BossWarHeros[i] = warHeros[i].heroIdx;
                 if (warHeros[i].chief) oGA.BossWarChiefIdx = i;
             }
+            this.DialogResult = true;
             this.Close();
         }
     }
