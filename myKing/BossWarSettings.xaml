@@ -5,19 +5,46 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:myKing"
         mc:Ignorable="d"
-        Title="BossWarSettings" Height="234.782" Width="422.197">
-    <Grid>
-        <ListView x:Name="lvHero" HorizontalAlignment="Left" Height="160" Margin="218,10,0,0" VerticalAlignment="Top" Width="186">
+        Title="BossWarSettings" Height="260.869" Width="461.247" MinHeight="250" MinWidth="480">
+    <Grid Margin="5,5,5,5">
+        <ListView x:Name="lvHero" Margin="218,10,11,37" SelectionChanged="lvHero_SelectionChanged">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="英雄" Width="100" DisplayMemberBinding="{Binding nm}"/>
+                    <GridViewColumn Header="英雄" Width="60" DisplayMemberBinding="{Binding nm}" />
+                    <GridViewColumn Header="等級" Width="30">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding lv}" TextAlignment="Right" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="戰力" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding power}" TextAlignment="Right" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="耗糧" Width="50" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding cfd}" TextAlignment="Right" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="btnChief" Content="設定主帥" HorizontalAlignment="Left" Margin="10,175,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="btnClear" Content="清除" HorizontalAlignment="Left" Margin="125,175,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="btnSave" Content="儲存" HorizontalAlignment="Left" Margin="241,175,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="btnCancel" Content="取消" HorizontalAlignment="Left" Margin="329,175,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btnChief" Content="設定主帥" HorizontalAlignment="Left" Margin="10,0,0,7" Width="75" Height="20" VerticalAlignment="Bottom" Click="btnChief_Click"/>
+        <Button x:Name="btnClear" Content="清除" HorizontalAlignment="Left" Margin="121,0,0,7" Width="75" Height="20" VerticalAlignment="Bottom" Click="btnClear_Click"/>
+        <Button x:Name="btnSave" Content="儲存" Margin="0,0,97,7" HorizontalAlignment="Right" Width="75" Height="20" VerticalAlignment="Bottom" Click="btnSave_Click"/>
+        <Button x:Name="btnCancel" Content="取消" Margin="0,0,10,7" HorizontalAlignment="Right" Width="75" Height="20" VerticalAlignment="Bottom" Click="btnCancel_Click"/>
         <local:WarHero x:Name="wh00" HorizontalAlignment="Left" Margin="45,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
         <local:WarHero x:Name="wh01" HorizontalAlignment="Left" Margin="108,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
         <local:WarHero x:Name="wh02" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
@@ -25,5 +52,5 @@
         <local:WarHero x:Name="wh04" HorizontalAlignment="Left" Margin="136,65,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
         <local:WarHero x:Name="wh05" HorizontalAlignment="Left" Margin="45,120,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
         <local:WarHero x:Name="wh06" HorizontalAlignment="Left" Margin="110,120,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
-</Grid>
+    </Grid>
 </Window>

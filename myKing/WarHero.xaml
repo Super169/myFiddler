@@ -6,8 +6,9 @@
              xmlns:local="clr-namespace:myKing"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="60">
-    <Grid Background="#FF7F7F7F">
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="60" Height="50" Background="#FF7F7F7F" Click="button_Click" BorderBrush="#FF0834F9"/>
-
+    <Grid Background="Black">
+        <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1,1,1,1" Width="58" Height="48" Background="#FF7F7F7F" Click="button_Click" BorderBrush="#FF0834F9"/>
+        <Label x:Name="lblLevel" Content="0" BorderThickness="1" Padding="0" Margin="0,1,1,0" Height="13" HorizontalAlignment="Right" Width="12" IsManipulationEnabled="True" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Bottom" FontSize="8" BorderBrush="Green"/>
+        <Label x:Name="lblPower" Content="0" Padding="0" Height="13" IsManipulationEnabled="True" HorizontalContentAlignment="Right" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" FontSize="8" BorderBrush="Green" Margin="0,0,2,2"/>
     </Grid>
 </UserControl>

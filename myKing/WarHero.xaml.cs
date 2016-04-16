@@ -23,7 +23,12 @@ namespace myKing
 
         public event EventHandler Click;
 
+        public int id = -1;
         public int heroIdx = 0;
+        public int lv;
+        public int power;
+        public int cfd;
+        public int spd;
         public string nm = "";
         public bool chief = false;
         public bool selected = false;
@@ -31,16 +36,44 @@ namespace myKing
         public WarHero()
         {
             InitializeComponent();
-            SetColor();
-            SetSelected(false);
+            this.SetSelected(false);
+            this.Reset();
         }
 
-        public void SetHero(int heroIdx, string nm)
+        public void Reset()
+        {
+            heroIdx = 0;
+            nm = "";
+            lv = 0;
+            power = 0;
+            cfd = 0;
+            spd = 0;
+            chief = false;
+            this.SetDisplay();
+        }
+
+        private void SetDisplay()
+        {
+            button.Content = nm;
+            lblLevel.Content = (this.lv > 0 ? this.lv.ToString() : "");
+            lblPower.Content = (this.power > 0 ? this.power.ToString() : "");
+            SetColor();
+        }
+
+        public bool IsEmpty()
+        {
+            return (heroIdx == 0);
+        }
+
+        public void SetHero(int heroIdx, string nm, int lv, int power, int cfd, int spd)
         {
             this.heroIdx = heroIdx;
             this.nm = nm;
-            button.Content = nm;
-            SetColor();
+            this.lv = lv;
+            this.power = power;
+            this.cfd = cfd;
+            this.spd = spd;
+            this.SetDisplay();
         }
 
         public void SetChief(bool chief)
@@ -63,7 +96,6 @@ namespace myKing
             {
                 button.Background = Brushes.White;
             }
-
         }
 
         private void button_Click(object sender, RoutedEventArgs e)

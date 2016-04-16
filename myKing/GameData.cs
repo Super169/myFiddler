@@ -22,7 +22,8 @@ namespace myKing
         public string VipLevel { get; set; }
         public List<HeroInfo> Heros { get; set; }
         public List<DecInfo> decHeros { get; set; }
-        public int[] BossWar = new int[7];
+        public int[] BossWarHeros = new int[7];
+        public int BossWarChiefIdx = -1;
         public Session Session { get; set; }
 
         public string HeroName(int heroIdx)

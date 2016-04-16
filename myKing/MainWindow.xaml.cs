@@ -44,6 +44,8 @@ namespace myKing
             switch (newStatus)
             {
                 case GameStatus.Idle:
+                    // Just set the background as other button which will not change color
+                    btnDetect.Background = btnGetHeroInfo.Background;
                     btnDetect.Content = "偵測帳戶";
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
@@ -51,6 +53,7 @@ namespace myKing
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
                 case GameStatus.DetectAccount:
+                    btnDetect.Background = Brushes.Red;
                     btnDetect.Content = "停止偵測";
                     btnGetHeroInfo.IsEnabled = false;
                     btnDecreeInfo.IsEnabled = false;
@@ -72,15 +75,10 @@ namespace myKing
         {
             if (gameStatus == GameStatus.Idle)
             {
-                // TODO: Detect running accounts in current computer using FiddlerCore
-                if (!myFiddler.IsStarted())
-                {
-                    SetGameStatus(GameStatus.DetectAccount);
-                    myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
-                    myFiddler.ConfigFiddler("King.IcanTW");
-                    myFiddler.Startup(true);
-                }
-
+                SetGameStatus(GameStatus.DetectAccount);
+                myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
+                myFiddler.ConfigFiddler("King.IcanTW");
+                myFiddler.Startup(true);
             }
             else
             {

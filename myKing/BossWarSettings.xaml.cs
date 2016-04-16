@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,23 @@ namespace myKing
         {
             this.oGA = oGA;
             lvHero.ItemsSource = oGA.Heros;
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(lvHero.ItemsSource);
+            view.SortDescriptions.Add(new SortDescription("power", ListSortDirection.Descending));
+            for (int i = 0; i < 7; i++)
+            {
+                if (oGA.BossWarHeros[i] == 0)
+                {
+                    warHeros[i].Reset();
+                } else
+                {
+                    HeroInfo hi =  oGA.Heros.SingleOrDefault(x => x.idx == oGA.BossWarHeros[i]);
+                    if (hi != null)
+                    {
+                        warHeros[i].SetHero(oGA.BossWarHeros[i], hi.nm, hi.lv, hi.power, hi.cfd, hi.spd);
+                    }
+                }
+                if (oGA.BossWarChiefIdx != -1) warHeros[oGA.BossWarChiefIdx].SetChief(true);
+            }
         }
 
         public BossWarSettings()
@@ -40,9 +58,10 @@ namespace myKing
             warHeros[4] = wh04;
             warHeros[5] = wh05;
             warHeros[6] = wh06;
-            foreach (WarHero wh in warHeros)
+            for (int i = 0; i < 7; i++)
             {
-                wh.SetHero(0, "");
+                warHeros[i].id = i;
+                warHeros[i].Reset();
             }
         }
 
@@ -50,27 +69,11 @@ namespace myKing
         {
             WarHero wh = (WarHero)sender;
             bool selection = !wh.selected;
-            if (selectedWH != null) selectedWH.SetSelected(false);
+            if (selectedWH != null)  selectedWH.SetSelected(false);
             wh.SetSelected(selection);
+            lvHero.UnselectAll();
             if (selection) selectedWH = wh;
             else selectedWH = null;
-        }
-
-        private void WarHeroClick(int idx)
-        {
-            wh00.SetSelected(!wh00.selected);
-
-            if (wh00.heroIdx == 0) return;
-            if (wh00.chief)
-            {
-                wh00.SetChief(false);
-            }
-            else
-            {
-                foreach (WarHero wh in warHeros) wh.SetChief(false);
-                wh00.SetChief(true);
-            }
-            setStatus();
         }
 
         private void setStatus()
@@ -79,6 +82,79 @@ namespace myKing
             btnClear.IsEnabled = (selectedWH != null);
         }
 
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void lvHero_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (selectedWH == null) return;
+            HeroInfo hi = (HeroInfo) lvHero.SelectedItem;
+            if (hi == null) return;
+
+            int heroCnt = 0;
+
+            foreach (WarHero wh in warHeros)
+            {
+                if (wh.heroIdx == hi.idx) wh.Reset();
+                if (wh.heroIdx > 0) heroCnt++;
+            }
+
+            if ((heroCnt == 5) && (selectedWH.heroIdx == 0))
+            {
+                MessageBox.Show("最多只可派5名英雄出戰");
+            } else
+            {
+                selectedWH.SetHero(hi.idx, hi.nm, hi.lv, hi.power, hi.cfd, hi.spd);
+            }
+        }
+
+        private void btnChief_Click(object sender, RoutedEventArgs e)
+        {
+            if ((selectedWH == null) || (selectedWH.chief) || (selectedWH.IsEmpty())) return;
+            foreach (WarHero wh in warHeros) wh.SetChief(false);
+            selectedWH.SetChief(true);
+        }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            if ((selectedWH == null) || (selectedWH.IsEmpty())) return;
+            selectedWH.Reset();
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            int heroCnt = 0;
+            int chiefIdx = -1;
+            for (int i = 0; i < 7; i++)
+            {
+                if (warHeros[i].heroIdx > 0)
+                {
+                    heroCnt++;
+                    if (warHeros[i].chief) chiefIdx = i;
+                }
+            }
+
+            if (heroCnt == 0)
+            {
+                MessageBox.Show("請選擇要作戰的英雄");
+                return;
+            }
+
+            if (chiefIdx == -1)
+            {
+                MessageBox.Show("請設定一名英雄為主帥");
+                return;
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                oGA.BossWarHeros[i] = warHeros[i].heroIdx;
+                if (warHeros[i].chief) oGA.BossWarChiefIdx = i;
+            }
+            this.Close();
+        }
     }
 
 }
