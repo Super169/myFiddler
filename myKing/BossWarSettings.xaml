@@ -18,12 +18,12 @@
         <Button x:Name="btnClear" Content="清除" HorizontalAlignment="Left" Margin="125,175,0,0" VerticalAlignment="Top" Width="75"/>
         <Button x:Name="btnSave" Content="儲存" HorizontalAlignment="Left" Margin="241,175,0,0" VerticalAlignment="Top" Width="75"/>
         <Button x:Name="btnCancel" Content="取消" HorizontalAlignment="Left" Margin="329,175,0,0" VerticalAlignment="Top" Width="75"/>
-        <local:WarHero x:Name="wh00" HorizontalAlignment="Left" Margin="45,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="wh00_Click"/>
-        <local:WarHero x:Name="wh01" HorizontalAlignment="Left" Margin="108,10,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
-        <local:WarHero x:Name="wh02" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
-        <local:WarHero x:Name="wh03" HorizontalAlignment="Left" Margin="73,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
-        <local:WarHero x:Name="wh04" HorizontalAlignment="Left" Margin="136,65,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
-        <local:WarHero x:Name="wh05" HorizontalAlignment="Left" Margin="45,120,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
-        <local:WarHero x:Name="wh06" HorizontalAlignment="Left" Margin="110,120,0,0" VerticalAlignment="Top" Width="60" Height="50"/>
+        <local:WarHero x:Name="wh00" HorizontalAlignment="Left" Margin="45,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh01" HorizontalAlignment="Left" Margin="108,10,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh02" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh03" HorizontalAlignment="Left" Margin="73,65,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh04" HorizontalAlignment="Left" Margin="136,65,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh05" HorizontalAlignment="Left" Margin="45,120,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
+        <local:WarHero x:Name="wh06" HorizontalAlignment="Left" Margin="110,120,0,0" VerticalAlignment="Top" Width="60" Height="50" Click="warHero_Click"/>
 </Grid>
 </Window>

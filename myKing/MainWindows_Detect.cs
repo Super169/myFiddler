@@ -73,6 +73,7 @@ namespace myKing
                     Account = info.account,
                     Server = info.serverTitle,
                     NickName = info.nickName,
+                    CorpsName = info.CORPS_NAME,
                     Level = info.LEVEL,
                     VipLevel = info.VIP_LEVEL,
                     Heros = new List<HeroInfo>(),

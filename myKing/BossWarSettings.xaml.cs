@@ -22,6 +22,7 @@ namespace myKing
         GameAccount oGA;
 
         WarHero[] warHeros = new WarHero[7];
+        WarHero selectedWH = null;
 
         public void setData(GameAccount oGA)
         {
@@ -45,7 +46,17 @@ namespace myKing
             }
         }
 
-        private void wh00_Click(object sender, EventArgs e)
+        private void warHero_Click(object sender, EventArgs e)
+        {
+            WarHero wh = (WarHero)sender;
+            bool selection = !wh.selected;
+            if (selectedWH != null) selectedWH.SetSelected(false);
+            wh.SetSelected(selection);
+            if (selection) selectedWH = wh;
+            else selectedWH = null;
+        }
+
+        private void WarHeroClick(int idx)
         {
             wh00.SetSelected(!wh00.selected);
 
@@ -59,8 +70,15 @@ namespace myKing
                 foreach (WarHero wh in warHeros) wh.SetChief(false);
                 wh00.SetChief(true);
             }
-
+            setStatus();
         }
+
+        private void setStatus()
+        {
+            btnChief.IsEnabled = ((selectedWH != null)  && (selectedWH.heroIdx > 0));
+            btnClear.IsEnabled = (selectedWH != null);
+        }
+
     }
 
 }

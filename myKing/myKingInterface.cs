@@ -207,6 +207,7 @@ namespace myKing
                             {
                                 idx = hero.idx,
                                 nm = hero.nm,
+                                army = hero.army,
                                 lv = hero.lv,
                                 power = hero.power,
                                 cfd = hero.cfd,
