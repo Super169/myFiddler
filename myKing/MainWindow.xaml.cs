@@ -61,7 +61,7 @@ namespace myKing
                     btnDetect.Content = "偵測帳戶";
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
-                    // btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
+                    btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
                 case GameStatus.DetectAccount:
@@ -69,7 +69,7 @@ namespace myKing
                     btnDetect.Content = "停止偵測";
                     btnGetHeroInfo.IsEnabled = false;
                     btnDecreeInfo.IsEnabled = false;
-                    // btnBossWar.IsEnabled = false;
+                    btnBossWar.IsEnabled = false;
                     btnBossWarSettings.IsEnabled = false;
                     break;
 
