@@ -314,19 +314,55 @@ namespace myKing
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-            GameAccount oGA = getSelectedAccount(true);
-            if ((oGA == null) || (!herosReady(oGA, true))) return;
-            if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
+            string acInfo;
+            if (gameAccounts.Count == 0)
             {
-                MessageBox.Show("請先設定神將無雙的佈陣");
+                UpdateResult("神將無雙 - 開始失敗, 未有帳戶資料", true);
                 return;
             }
-            string info = "";
-            bool warSuccess;
-            myFiddler.Startup(false);
-            warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
-            myFiddler.Shutdown();
-            UpdateResult(info);
+
+            UpdateResult("神將無雙 - 開始\n", true);
+            foreach (GameAccount oGA in gameAccounts)
+            {
+                acInfo = oGA.Server + " | " + oGA.NickName + " | ";
+                if (herosReady(oGA, true))
+                {
+                    if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
+                    {
+                        UpdateResult(acInfo + "FAIL | 沒有神將無雙的佈陣資料", true);
+                    } else
+                    {
+                        UpdateResult(acInfo + "神將無雙 - 出兵 - 開始");
+                        bool warSuccess;
+                        string info = "";
+                        myFiddler.Startup(false);
+                        warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
+                        myFiddler.Shutdown();
+                        UpdateResult(info, false);
+                        UpdateResult(acInfo + "神將無雙 - 出兵 - 結束\n");
+                    }
+                }
+                else
+                {
+                    UpdateResult(acInfo + "FAIL | 沒有英雄資料", true);
+                }
+            }
+            /*
+                        GameAccount oGA = getSelectedAccount(true);
+                        if ((oGA == null) || (!herosReady(oGA, true))) return;
+                        if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
+                        {
+                            MessageBox.Show("請先設定神將無雙的佈陣");
+                            return;
+                        }
+                        string info = "";
+                        bool warSuccess;
+                        myFiddler.Startup(false);
+                        warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
+                        myFiddler.Shutdown();
+                        UpdateResult(info);
+            */
+            UpdateResult("神將無雙 - 結束");
         }
 
         private void UpdateResult(string info, bool addTime = false, bool reset = false)

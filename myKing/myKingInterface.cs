@@ -270,7 +270,7 @@ namespace myKing
             // Overall success must include previous success
             actionInfo = "";
             actionSuccess &= GoBossWarLeaveWar(oS, sid, out actionInfo);
-            info += actionInfo + "\n";
+            info += actionInfo;
 
             return (actionSuccess);
         }
