@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Web.Helpers;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace myKing
 {
@@ -33,6 +35,7 @@ namespace myKing
         List<AccountKey> accounts = new List<AccountKey>();
 
         Object accountsLocker = new Object();
+        System.Timers.Timer bossTimer = new System.Timers.Timer(10000);
 
         // System.Threading.Timer bossTimer;
 
@@ -52,6 +55,8 @@ namespace myKing
             SetGameStatus(GameStatus.Idle);
             btnSaveProfile.Visibility = Visibility.Hidden;
             btnRestoreProfile.Visibility = Visibility.Hidden;
+            bossTimer.Elapsed += new System.Timers.ElapsedEventHandler(_timer_Elapsed);
+            bossTimer.Enabled = false;
         }
 
         void SetGameStatus(GameStatus newStatus)
@@ -66,8 +71,10 @@ namespace myKing
                     btnDetect.IsEnabled = true;
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
-                    btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
+                    btnBossWarOnce.IsEnabled = (lvPlayers.Items.Count > 0);
+                    // btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
+                    btnBossWar.IsEnabled = true;
                     break;
 
                 case GameStatus.DetectAccount:
@@ -75,28 +82,44 @@ namespace myKing
                     btnDetect.Content = "停止偵測";
                     btnGetHeroInfo.IsEnabled = false;
                     btnDecreeInfo.IsEnabled = false;
-                    btnBossWar.IsEnabled = false;
                     btnBossWarSettings.IsEnabled = false;
+                    btnBossWar.IsEnabled = false;
+                    btnBossWarOnce.IsEnabled = false;
                     break;
 
                 case GameStatus.BossWarOnce:
                     btnDetect.IsEnabled = false;
                     btnGetHeroInfo.IsEnabled = false;
                     btnDecreeInfo.IsEnabled = false;
-                    btnBossWar.IsEnabled = false;
                     btnBossWarSettings.IsEnabled = false;
+                    btnBossWarOnce.IsEnabled = false;
+                    btnBossWar.IsEnabled = false;
                     break;
 
             }
         }
 
 
-        private void UpdateResult(string info, bool addTime = false, bool reset = false)
+        private void UpdateResult(string info = "", bool addTime = false, bool reset = false)
         {
-            if (reset) txtResult.Text = "";
-            if (addTime) txtResult.Text += DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ");
-            txtResult.Text += info + "\n";
-            txtResult.ScrollToEnd();
+            Dispatcher currentThreadDispatcher = Dispatcher.FromThread(Thread.CurrentThread);
+
+            if (currentThreadDispatcher == null)
+            {
+                // Running in background thread, call BeginInvoke to UI thread
+                // To reduce the timegap for time capturing, the time is added in background if need.
+                if (addTime) info = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ") + info;
+                Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    (Action)(() => UpdateResult(info, false, reset)));
+            } else
+            {
+                if (reset) txtResult.Text = "";
+                if (addTime) txtResult.Text += DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ");
+                txtResult.Text += info + "\n";
+                txtResult.ScrollToEnd();
+            }
+
         }
 
         private void btnDetect_Click(object sender, RoutedEventArgs e)
@@ -114,8 +137,11 @@ namespace myKing
                 myFiddler.Shutdown();
                 getPlayerDetails();
                 SetGameStatus(GameStatus.Idle);
-                if (lvPlayers.SelectedIndex == -1) lvPlayers.SelectedIndex = 0;
-                RestoreProfile();
+                if (lvPlayers.Items.Count > 0)
+                {
+                    if (lvPlayers.SelectedIndex == -1) lvPlayers.SelectedIndex = 0;
+                    RestoreProfile();
+                }
                 UpdateResult("偵測帳戶 - 結束", true);
             }
 
@@ -207,7 +233,7 @@ namespace myKing
             }
             catch (Exception ex)
             {
-                UpdateResult("Error reading data:\n" + ex.Message, true);
+                UpdateResult("Error reading profile file:\n" + ex.Message, true);
                 return;
             }
             finally
@@ -217,7 +243,6 @@ namespace myKing
 
 
             int updCnt = 0;
-            string updAccount = "";
             foreach (GameAccountProfile oGAP in gameAccountProfiles)
             {
                 GameAccount oGA = gameAccounts.SingleOrDefault(x => x.Account == oGAP.Account);
@@ -225,11 +250,11 @@ namespace myKing
                 {
                     updCnt++;
                     oGAP.toGameAccount(oGA);
-                    updAccount += oGA.Server + ": " + oGA.NickName + "\n";
+                    UpdateResult("Profile Restore: " + oGA.Server + ": " + oGA.NickName, true);
                 }
             }
             refreshAccountList();
-            UpdateResult(string.Format("資料成功讀取, 以下 {0} 個帳記更新了\n{1}", updCnt, updAccount), true);
+            UpdateResult(string.Format("掛機資料讀取完成, {0} 個帳記更新了", updCnt), true);
         }
 
 
@@ -350,10 +375,14 @@ namespace myKing
         private void GoBossWarOnce()
         {
             string acInfo;
-            UpdateResult("神將無雙 - 開始\n", true);
+
+            // UpdateResult();
+            UpdateResult("神將無雙 - 開始", true);
+            // UpdateResult();
+
             foreach (GameAccount oGA in gameAccounts)
             {
-                acInfo = oGA.Server + " | " + oGA.NickName + " | ";
+                acInfo = oGA.Server + " | " + oGA.NickName + " | 神將無雙 | ";
                 if (herosReady(oGA, true))
                 {
                     if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
@@ -362,42 +391,57 @@ namespace myKing
                     }
                     else
                     {
-                        UpdateResult(acInfo + "神將無雙 - 出兵 - 開始", true);
+                        UpdateResult(acInfo + "出兵 - 開始", true);
                         bool warSuccess;
                         string info = "";
                         myFiddler.Startup(false);
                         warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
                         myFiddler.Shutdown();
                         UpdateResult(info, false);
-                        UpdateResult(acInfo + "神將無雙 - 出兵 - 結束\n", true);
+                        UpdateResult(acInfo + "出兵 - 結束", true);
                     }
                 }
                 else
                 {
                     UpdateResult(acInfo + "FAIL | 沒有英雄資料", true);
                 }
+                // UpdateResult();
             }
             UpdateResult("神將無雙 - 結束", true);
+            // UpdateResult();
         }
 
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("功能測試中, 尚未公開");
 
-/*
-            AutoResetEvent autoEvent = new AutoResetEvent(false);
-            TimerCallback tcb = bossTimer_Tick;
-            bossTimer = new Timer(tcb, autoEvent, 1000, 3000);
-*/
+            if (bossTimer.Enabled)
+            {
+                UpdateResult("自動神將 | 結束", true);
+                bossTimer.Enabled = false;
+            }
+            else
+            {
+                UpdateResult("自動神將 | 開始", true);
+                bossTimer.Interval = 1;
+                bossTimer.Enabled = true;
+            }
+            /*
+                        AutoResetEvent autoEvent = new AutoResetEvent(false);
+                        TimerCallback tcb = bossTimer_Tick;
+                        bossTimer = new Timer(tcb, autoEvent, 1000, 3000);
+            */
 
         }
-/*
-        void bossTimer_Tick(object sender)
+
+        void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            UpdateResult("Timer");
+            bossTimer.Interval = 30000;
+            bossTimer.Enabled = false;
+            GoBossWarOnce();
+            bossTimer.Enabled = true;
         }
-*/
+
     }
 
 }

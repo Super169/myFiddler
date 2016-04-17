@@ -32,11 +32,13 @@ namespace myKing
                 if (oExists == null)
                 {
                     gameAccounts.Add(oGA);
+                    UpdateResult("Find account: " + oGA.Server + ": " + oGA.NickName, true);
                 } else
                 {
                     // Just update Sid at this time, in fact, other data can be updated
                     oExists.Sid = oGA.Sid;
                     refreshAccountList();
+                    UpdateResult("Update account: " + oGA.Server + ": " + oGA.NickName, true);
                 }
             }
         }
