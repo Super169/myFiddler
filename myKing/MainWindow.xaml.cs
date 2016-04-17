@@ -42,7 +42,7 @@ namespace myKing
 
         enum GameStatus
         {
-            Idle, DetectAccount, BossWarOnce, BossWar
+            Idle, DetectAccount, BossWarOnce, BossWar, BossWarStop
         }
 
         GameStatus gameStatus = GameStatus.Idle;
@@ -73,8 +73,8 @@ namespace myKing
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarOnce.IsEnabled = (lvPlayers.Items.Count > 0);
-                    // btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
-                    btnBossWar.IsEnabled = true;
+                    btnBossWar.Content = "啟動自動神將";
+                    btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
 
                 case GameStatus.DetectAccount:
@@ -95,6 +95,24 @@ namespace myKing
                     btnBossWarOnce.IsEnabled = false;
                     btnBossWar.IsEnabled = false;
                     break;
+
+                case GameStatus.BossWar:
+                    btnDetect.IsEnabled = false;
+                    btnGetHeroInfo.IsEnabled = false;
+                    btnDecreeInfo.IsEnabled = false;
+                    btnBossWarSettings.IsEnabled = false;
+                    btnBossWarOnce.IsEnabled = false;
+                    btnBossWar.Content = "停止自動神將";
+                    btnBossWar.Background = Brushes.Red;
+                    btnBossWar.IsEnabled = true;
+                    break;
+
+                case GameStatus.BossWarStop:
+                    btnBossWar.Background = btnGetHeroInfo.Background; 
+                    SetGameStatus(GameStatus.Idle);
+                    break;
+
+
 
             }
         }
@@ -417,11 +435,14 @@ namespace myKing
 
             if (bossTimer.Enabled)
             {
-                UpdateResult("自動神將 | 結束", true);
+
                 bossTimer.Enabled = false;
+                UpdateResult("自動神將 | 結束", true);
+                SetGameStatus(GameStatus.BossWarStop);
             }
             else
             {
+                SetGameStatus(GameStatus.BossWar);
                 UpdateResult("自動神將 | 開始", true);
                 bossTimer.Interval = 1;
                 bossTimer.Enabled = true;
@@ -436,9 +457,9 @@ namespace myKing
 
         void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            bossTimer.Interval = 30000;
             bossTimer.Enabled = false;
             GoBossWarOnce();
+            bossTimer.Interval = 31000;
             bossTimer.Enabled = true;
         }
 
