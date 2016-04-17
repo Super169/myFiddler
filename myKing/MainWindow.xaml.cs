@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -219,7 +220,11 @@ namespace myKing
             Window.Title = "神將無雙佈陣";
             Window.setData(oGA);
             bool? dialogResult = Window.ShowDialog();
-            if (dialogResult == true) SaveProfile();
+            if (dialogResult == true)
+            {
+                refreshAccountList();
+                SaveProfile();
+            }
         }
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
@@ -317,6 +322,7 @@ namespace myKing
                     updAccount += oGA.Server + ": " + oGA.NickName + "\n";
                 }
             }
+            refreshAccountList();
             UpdateInfo(string.Format("資料成功讀取, 以下 {0} 個帳記更新了\n{1}", updCnt, updAccount));
         }
 

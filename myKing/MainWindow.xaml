@@ -23,6 +23,7 @@
                         <GridViewColumn Header="等級" Width="30" DisplayMemberBinding="{Binding Level}"/>
                         <GridViewColumn  Header="VIP" Width="30" DisplayMemberBinding="{Binding VipLevel}"/>
                         <GridViewColumn Header="sid" Width="280" DisplayMemberBinding="{Binding Sid}"/>
+                        <GridViewColumn  Header="神將佈陣" Width="1000" DisplayMemberBinding="{Binding BossWarBody}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

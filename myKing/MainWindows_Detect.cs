@@ -1,11 +1,13 @@
 ﻿using Fiddler;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using System.Windows;
+using System.Windows.Data;
 using static myKing.myKingInterface;
 
 namespace myKing
@@ -16,13 +18,26 @@ namespace myKing
         const string ICANTW_PATH = "/m.do";
 
 
+        void refreshAccountList()
+        {
+            ICollectionView view = CollectionViewSource.GetDefaultView(lvPlayers.ItemsSource);
+            view.Refresh();
+        }
+
         void UpdateAccountList(GameAccount oGA)
         {
             lock(accountsLocker)
             {
                 GameAccount oExists = gameAccounts.SingleOrDefault(x => x.Account == oGA.Account);
-                if (oExists != null) gameAccounts.Remove(oExists);
-                gameAccounts.Add(oGA);
+                if (oExists == null)
+                {
+                    gameAccounts.Add(oGA);
+                } else
+                {
+                    // Just update Sid at this time, in fact, other data can be updated
+                    oExists.Sid = oGA.Sid;
+                    refreshAccountList();
+                }
             }
         }
 

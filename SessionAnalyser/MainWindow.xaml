@@ -1,0 +1,22 @@
+﻿<Window x:Class="SessionAnalyser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SessionAnalyser"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="489.041" Width="799.247">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <TextBox x:Name="txtResult" Margin="0,0,0,0" TextWrapping="Wrap" Text="TextBox"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="19,0,0,0" VerticalAlignment="Top" Width="75" Click="btnLoadSession_Click"/>
+        </Grid>
+
+    </Grid>
+</Window>

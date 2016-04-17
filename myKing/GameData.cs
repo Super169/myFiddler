@@ -16,12 +16,14 @@ namespace myKing
         public string Account { get; set; }
         public int[] BossWarHeros = new int[7];
         public int BossWarChiefIdx = -1;
+        public string BossWarBody = "";
 
         public void fromGameAccount(GameAccount oGA)
         {
             this.Account = oGA.Account;
             for (int i = 0; i < 7; i++) this.BossWarHeros[i] = oGA.BossWarHeros[i];
             this.BossWarChiefIdx = oGA.BossWarChiefIdx;
+            this.BossWarBody = oGA.BossWarBody;
         }
 
         public void toGameAccount(GameAccount oGA)
@@ -30,6 +32,7 @@ namespace myKing
             {
                 for (int i = 0; i < 7; i++) oGA.BossWarHeros[i] = this.BossWarHeros[i];
                 oGA.BossWarChiefIdx = this.BossWarChiefIdx;
+                oGA.BossWarBody = this.BossWarBody;
             }
         }
 
@@ -48,6 +51,7 @@ namespace myKing
         public List<DecInfo> decHeros { get; set; }
         public int[] BossWarHeros = new int[7];
         public int BossWarChiefIdx = -1;
+        public string BossWarBody { get; set; }
         public Session Session { get; set; }
 
         public string HeroName(int heroIdx)

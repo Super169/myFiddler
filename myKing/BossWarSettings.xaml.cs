@@ -152,8 +152,50 @@ namespace myKing
             for (int i = 0; i < 7; i++)
             {
                 oGA.BossWarHeros[i] = warHeros[i].heroIdx;
-                if (warHeros[i].chief) oGA.BossWarChiefIdx = i;
             }
+            oGA.BossWarChiefIdx = chiefIdx;
+
+
+            // sBody = "{\"type\":\"WEB_BROWSER\",\"loginCode\":\"" + txtSId.Text + "\"}";
+
+            // "body":"{\"chief\":12,\"heros\":[{\"x\":-2,\"y\":0,\"index\":12},{\"x\":-4,\"y\":0,\"index\":3},{\"x\":-3,\"y\":-1,\"index\":15},{\"x\":-5,\"y\":-1,\"index\":7},{\"x\":-3,\"y\":1,\"index\":4}]}"
+            string BossWarBody = "{\"chief\":" + warHeros[chiefIdx].heroIdx + ",\"heros\":[";
+            for (int i = 0; i < 7; i++)
+            {
+                heroCnt = 0;
+                if (warHeros[i].heroIdx > 0)
+                {
+                    if (heroCnt > 0) BossWarBody += ",";
+                    heroCnt++;
+                    switch (i)
+                    {
+                        case 0:
+                            BossWarBody += "{\"x\":-5,\"y\":-1,";
+                            break;
+                        case 1:
+                            BossWarBody += "{\"x\":-3,\"y\":-1,";
+                            break;
+                        case 2:
+                            BossWarBody += "{\"x\":-6,\"y\":0,";
+                            break;
+                        case 3:
+                            BossWarBody += "{\"x\":-4,\"y\":0,";
+                            break;
+                        case 4:
+                            BossWarBody += "{\"x\":-2,\"y\":0,";
+                            break;
+                        case 5:
+                            BossWarBody += "{\"x\":-5,\"y\":1,";
+                            break;
+                        case 6:
+                            BossWarBody += "{\"x\":-3,\"y\":1,";
+                            break;
+                    }
+                    BossWarBody += "\"index\":" + warHeros[i].heroIdx + "}";
+                }
+            }
+            BossWarBody += "]}";
+            oGA.BossWarBody = BossWarBody;
             this.DialogResult = true;
             this.Close();
         }
