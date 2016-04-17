@@ -291,9 +291,15 @@ namespace myKing
                 info += "FAIL | " + responseText;
                 return false;
             }
+            if (json.senCount == null)
+            {
+                info += "FAIL | " + responseText;
+                return false;
+            }
             info += string.Format("SUCCESS | sent: {0}", json.sendCount);
             if (json.bossInfo != null) info += string.Format(" | Boss HP: {0}", json.bossInfo.hpp);
             return true;
+
         }
 
 

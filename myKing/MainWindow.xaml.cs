@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using System.Windows;
@@ -33,9 +34,12 @@ namespace myKing
 
         Object accountsLocker = new Object();
 
+        // System.Threading.Timer bossTimer;
+
+
         enum GameStatus
         {
-            Idle, DetectAccount, Waiting
+            Idle, DetectAccount, BossWarOnce, BossWar
         }
 
         GameStatus gameStatus = GameStatus.Idle;
@@ -59,11 +63,13 @@ namespace myKing
                     // Just set the background as other button which will not change color
                     btnDetect.Background = btnGetHeroInfo.Background;
                     btnDetect.Content = "偵測帳戶";
+                    btnDetect.IsEnabled = true;
                     btnGetHeroInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnDecreeInfo.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWar.IsEnabled = (lvPlayers.Items.Count > 0);
                     btnBossWarSettings.IsEnabled = (lvPlayers.Items.Count > 0);
                     break;
+
                 case GameStatus.DetectAccount:
                     btnDetect.Background = Brushes.Red;
                     btnDetect.Content = "停止偵測";
@@ -73,7 +79,24 @@ namespace myKing
                     btnBossWarSettings.IsEnabled = false;
                     break;
 
+                case GameStatus.BossWarOnce:
+                    btnDetect.IsEnabled = false;
+                    btnGetHeroInfo.IsEnabled = false;
+                    btnDecreeInfo.IsEnabled = false;
+                    btnBossWar.IsEnabled = false;
+                    btnBossWarSettings.IsEnabled = false;
+                    break;
+
             }
+        }
+
+
+        private void UpdateResult(string info, bool addTime = false, bool reset = false)
+        {
+            if (reset) txtResult.Text = "";
+            if (addTime) txtResult.Text += DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ");
+            txtResult.Text += info + "\n";
+            txtResult.ScrollToEnd();
         }
 
         private void btnDetect_Click(object sender, RoutedEventArgs e)
@@ -312,15 +335,21 @@ namespace myKing
             }
         }
 
-        private void btnBossWar_Click(object sender, RoutedEventArgs e)
+        private void btnBossWarOnce_Click(object sender, RoutedEventArgs e)
         {
-            string acInfo;
             if (gameAccounts.Count == 0)
             {
                 UpdateResult("神將無雙 - 開始失敗, 未有帳戶資料", true);
                 return;
             }
+            SetGameStatus(GameStatus.BossWarOnce);
+            GoBossWarOnce();
+            SetGameStatus(GameStatus.Idle);
+        }
 
+        private void GoBossWarOnce()
+        {
+            string acInfo;
             UpdateResult("神將無雙 - 開始\n", true);
             foreach (GameAccount oGA in gameAccounts)
             {
@@ -330,16 +359,17 @@ namespace myKing
                     if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
                     {
                         UpdateResult(acInfo + "FAIL | 沒有神將無雙的佈陣資料", true);
-                    } else
+                    }
+                    else
                     {
-                        UpdateResult(acInfo + "神將無雙 - 出兵 - 開始");
+                        UpdateResult(acInfo + "神將無雙 - 出兵 - 開始", true);
                         bool warSuccess;
                         string info = "";
                         myFiddler.Startup(false);
                         warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
                         myFiddler.Shutdown();
                         UpdateResult(info, false);
-                        UpdateResult(acInfo + "神將無雙 - 出兵 - 結束\n");
+                        UpdateResult(acInfo + "神將無雙 - 出兵 - 結束\n", true);
                     }
                 }
                 else
@@ -347,33 +377,27 @@ namespace myKing
                     UpdateResult(acInfo + "FAIL | 沒有英雄資料", true);
                 }
             }
-            /*
-                        GameAccount oGA = getSelectedAccount(true);
-                        if ((oGA == null) || (!herosReady(oGA, true))) return;
-                        if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
-                        {
-                            MessageBox.Show("請先設定神將無雙的佈陣");
-                            return;
-                        }
-                        string info = "";
-                        bool warSuccess;
-                        myFiddler.Startup(false);
-                        warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
-                        myFiddler.Shutdown();
-                        UpdateResult(info);
-            */
-            UpdateResult("神將無雙 - 結束");
+            UpdateResult("神將無雙 - 結束", true);
         }
 
-        private void UpdateResult(string info, bool addTime = false, bool reset = false)
+
+        private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-            if (reset) txtResult.Text = "";
-            if (addTime) txtResult.Text += DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ");
-            txtResult.Text += info + "\n";
-            txtResult.ScrollToEnd();
-        }
+            MessageBox.Show("功能測試中, 尚未公開");
 
-        
+/*
+            AutoResetEvent autoEvent = new AutoResetEvent(false);
+            TimerCallback tcb = bossTimer_Tick;
+            bossTimer = new Timer(tcb, autoEvent, 1000, 3000);
+*/
+
+        }
+/*
+        void bossTimer_Tick(object sender)
+        {
+            UpdateResult("Timer");
+        }
+*/
     }
 
 }

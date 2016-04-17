@@ -52,6 +52,7 @@ namespace myKing
         public int[] BossWarHeros = new int[7];
         public int BossWarChiefIdx = -1;
         public string BossWarBody { get; set; }
+        public int BossWarCount { get; set; }
         public Session Session { get; set; }
 
         public string HeroName(int heroIdx)
