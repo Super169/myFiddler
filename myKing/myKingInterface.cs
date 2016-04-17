@@ -29,6 +29,13 @@ namespace myKing
             public string VIP_LEVEL;
         }
 
+
+        private static string GetSystemTime()
+        {
+            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+
         public static string CleanUpResponse(string responseText)
         {
             if (responseText == null) return null;
@@ -119,12 +126,12 @@ namespace myKing
             return rro;
         }
 
-        public static dynamic getJsonFromResponse(string responseText)
+        public static dynamic getJsonFromResponse(string responseText, bool cleanUp = true)
         {
             dynamic json = null;
             try
             {
-                string jsonString = CleanUpResponse(responseText);
+                string jsonString = (cleanUp ? CleanUpResponse(responseText) : responseText);
                 json = Json.Decode(jsonString);
             }
             catch (Exception ex)
@@ -134,10 +141,15 @@ namespace myKing
             return json;
         }
 
-        public static dynamic getJsonFromResponse(Session oS)
+        public static dynamic getJsonFromResponse(Session oS, bool cleanUp = true)
         {
-            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-            return getJsonFromResponse(responseText);
+            string responseText = GetResponseText(oS);
+            return getJsonFromResponse(responseText, cleanUp);
+        }
+
+        public static string GetResponseText(Session oS)
+        {
+            return Encoding.UTF8.GetString(oS.responseBodyBytes);
         }
 
         public static LoginInfo getLogin_login(Fiddler.Session oS, string sid)
@@ -164,7 +176,6 @@ namespace myKing
             }
             return info;
         }
-        
 
         public static requestReturnObject getHeroInfo(Session oS, string sid)
         {
@@ -232,10 +243,125 @@ namespace myKing
             return success;
         }
 
-
         public static requestReturnObject getDecreeInfo(Session oS, string sid)
         {
             return goGenericRequest(oS, sid, "Manor.decreeInfo");
         }
+
+        public static bool GoBossWarOnce(Session oS, string sid, string bossWarBody, out string info)
+        {
+            string actionInfo;
+            bool actionSuccess;
+            info = "";
+
+            actionInfo = "";
+            actionSuccess = GoBossWarEnterWar(oS, sid, out actionInfo);
+            info += actionInfo + "\n";
+
+            // sendTroops only if successfully entered.
+            if (actionSuccess)
+            {
+                actionInfo = "";
+                actionSuccess = GoBossWarSendTroop(oS, sid, bossWarBody, out actionInfo);
+                info += actionInfo + "\n";
+            }
+
+            // Must leave once for future, just for safety
+            // Overall success must include previous success
+            actionInfo = "";
+            actionSuccess &= GoBossWarLeaveWar(oS, sid, out actionInfo);
+            info += actionInfo + "\n";
+
+            return (actionSuccess);
+        }
+
+        public static bool GoBossWarEnterWar(Session oS, string sid, out string info)
+        {
+            info = GetSystemTime() + " | enterWar | ";
+            requestReturnObject rro = goGenericRequest(oS, sid, "BossWar.enterWar");
+            if (!rro.success)
+            {
+                info += "FAIL | " + rro.msg;
+                return false;
+            }
+            string responseText = GetResponseText(rro.session);
+            dynamic json = getJsonFromResponse(responseText, false);
+            if (json == null)
+            {
+                info += "FAIL | " + responseText;
+                return false;
+            }
+            info += string.Format("SUCCESS | sent: {0}", json.sendCount);
+            if (json.bossInfo != null) info += string.Format(" | Boss HP: {0}", json.bossInfo.hpp);
+            return true;
+        }
+
+
+        public static bool GoBossWarLeaveWar(Session oS, string sid, out string info)
+        {
+            info = GetSystemTime() + " | leaveWar | ";
+            requestReturnObject rro = goGenericRequest(oS, sid, "BossWar.leaveWar");
+            if (!rro.success)
+            {
+                info += "FAIL | " + rro.msg;
+                return false;
+            }
+            string responseText = GetResponseText(rro.session);
+            dynamic json = getJsonFromResponse(responseText, false);
+            if (json == null)
+            {
+                info += "FAIL | " + responseText;
+                return false;
+            }
+            if (json.ok != 1)
+            {
+                info += "FAIL | " + responseText;
+                return true;
+            }
+            info += "SUCCESS";
+            return true;
+        }
+
+        public static bool GoBossWarSendTroop(Session oS, string sid, string body, out string info)
+        {
+            info = GetSystemTime() + " | enterWar | ";
+            if ((body == null) || (body == "")) {
+                info += "FAIL | missing troop information";
+                return false;
+            }
+
+            requestReturnObject rro = goGenericRequest(oS, sid, "BossWar.sendTroop", true, body);
+            if (!rro.success)
+            {
+                info += "FAIL | " + rro.msg;
+                return false;
+            }
+            string responseText = GetResponseText(rro.session);
+            dynamic json = getJsonFromResponse(responseText, false);
+            if (json == null)
+            {
+                info += "FAIL | " + responseText;
+                return false;
+            }
+            if (json.ok == 1)
+            {
+                info += "SUCCESS";
+                return true;
+
+            }
+            info += "FAIL | ";
+            if (json.prompt != null)
+            {
+                info += json.prompt;
+            } else
+            {
+                info += responseText;
+            }
+            return false;
+        }
+
+
+
+
     }
 }

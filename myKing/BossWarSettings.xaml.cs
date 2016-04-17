@@ -160,9 +160,10 @@ namespace myKing
 
             // "body":"{\"chief\":12,\"heros\":[{\"x\":-2,\"y\":0,\"index\":12},{\"x\":-4,\"y\":0,\"index\":3},{\"x\":-3,\"y\":-1,\"index\":15},{\"x\":-5,\"y\":-1,\"index\":7},{\"x\":-3,\"y\":1,\"index\":4}]}"
             string BossWarBody = "{\"chief\":" + warHeros[chiefIdx].heroIdx + ",\"heros\":[";
+            heroCnt = 0;
+
             for (int i = 0; i < 7; i++)
             {
-                heroCnt = 0;
                 if (warHeros[i].heroIdx > 0)
                 {
                     if (heroCnt > 0) BossWarBody += ",";

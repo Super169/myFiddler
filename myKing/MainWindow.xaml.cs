@@ -50,11 +50,6 @@ namespace myKing
             btnRestoreProfile.Visibility = Visibility.Hidden;
         }
 
-        private void UpdateInfo(string info = "")
-        {
-            txtResult.Text = info;
-        }
-
         void SetGameStatus(GameStatus newStatus)
         {
             this.gameStatus = newStatus;
@@ -83,9 +78,9 @@ namespace myKing
 
         private void btnDetect_Click(object sender, RoutedEventArgs e)
         {
-            txtResult.Text = "";
             if (gameStatus == GameStatus.Idle)
             {
+                UpdateResult("偵測帳戶 - 開始", true);
                 SetGameStatus(GameStatus.DetectAccount);
                 myFiddler.AfterSessionComplete += AfterSessionCompleteHandler;
                 myFiddler.ConfigFiddler("King.IcanTW");
@@ -98,6 +93,7 @@ namespace myKing
                 SetGameStatus(GameStatus.Idle);
                 if (lvPlayers.SelectedIndex == -1) lvPlayers.SelectedIndex = 0;
                 RestoreProfile();
+                UpdateResult("偵測帳戶 - 結束", true);
             }
 
         }
@@ -113,20 +109,112 @@ namespace myKing
         private bool herosReady(GameAccount oGA, bool updateInfo = false)
         {
             if (oGA.Heros.Count == 0) myKingInterface.readHerosInfo(oGA);
-            if (updateInfo && (oGA.Heros.Count==0)) txtResult.Text = (gameAccounts.Count == 0 ? "請先偵測帳戶" : "讀取英雄資料失敗");
+            if (updateInfo && (oGA.Heros.Count==0)) MessageBox.Show((gameAccounts.Count == 0 ? "請先偵測帳戶" : "讀取英雄資料失敗"));
             return (oGA.Heros.Count > 0);
         }
 
         private GameAccount getSelectedAccount(bool updateInfo = false)
         {
             GameAccount oGA = (GameAccount)lvPlayers.SelectedItem;
-            if (updateInfo && (oGA == null)) txtResult.Text = (gameAccounts.Count == 0 ? "請先偵測帳戶" : "請先選擇帳戶");
+            if (updateInfo && (oGA == null)) MessageBox.Show((gameAccounts.Count == 0 ? "請先偵測帳戶" : "請先選擇帳戶"));
             return oGA;
         }
 
+
+        #region "Profile Related"
+
+        private void btnSaveProfile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveProfile();
+        }
+
+        private void btnRestoreProfile_Click(object sender, RoutedEventArgs e)
+        {
+            RestoreProfile();
+        }
+
+
+        private void SaveProfile()
+        {
+            if (gameAccounts.Count == 0) return;
+
+            foreach (GameAccount oGA in gameAccounts)
+            {
+                GameAccountProfile oGAP = gameAccountProfiles.SingleOrDefault(x => x.Account == oGA.Account);
+                if (oGAP == null)
+                {
+                    oGAP = new GameAccountProfile();
+                    oGAP.fromGameAccount(oGA);
+                    gameAccountProfiles.Add(oGAP);
+                }
+                else
+                {
+                    oGAP.fromGameAccount(oGA);
+                }
+            }
+
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream("myKing.dat", FileMode.OpenOrCreate);
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(fs, gameAccountProfiles);
+                UpdateResult("資料儲存成功", true);
+            }
+            catch (Exception ex)
+            {
+                UpdateResult("Error saving data:\n" + ex.Message, true);
+            }
+            finally
+            {
+                if (fs != null) fs.Close();
+            }
+        }
+
+        private void RestoreProfile()
+        {
+            gameAccountProfiles.Clear();
+
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream("myKing.dat", FileMode.Open);
+                BinaryFormatter formatter = new BinaryFormatter();
+                gameAccountProfiles = (List<GameAccountProfile>)formatter.Deserialize(fs);
+            }
+            catch (Exception ex)
+            {
+                UpdateResult("Error reading data:\n" + ex.Message, true);
+                return;
+            }
+            finally
+            {
+                if (fs != null) fs.Close();
+            }
+
+
+            int updCnt = 0;
+            string updAccount = "";
+            foreach (GameAccountProfile oGAP in gameAccountProfiles)
+            {
+                GameAccount oGA = gameAccounts.SingleOrDefault(x => x.Account == oGAP.Account);
+                if (oGA != null)
+                {
+                    updCnt++;
+                    oGAP.toGameAccount(oGA);
+                    updAccount += oGA.Server + ": " + oGA.NickName + "\n";
+                }
+            }
+            refreshAccountList();
+            UpdateResult(string.Format("資料成功讀取, 以下 {0} 個帳記更新了\n{1}", updCnt, updAccount), true);
+        }
+
+
+        #endregion
+
+
         private void btnGetHeroInfo_Click(object sender, RoutedEventArgs e)
         {
-            txtResult.Text = "";
             GameAccount oGA = getSelectedAccount(true);
             if (oGA == null) return;
 
@@ -139,12 +227,11 @@ namespace myKing
                 info += string.Format(" : {0} : {1} : {2} : {3} : {4} : {5}", hi.intl, hi.strg, hi.chrm, hi.attk, hi.dfnc, hi.spd);
                 info += "\n";
             }
-            txtResult.Text = info;
+            UpdateResult(info);
         }
 
         private void btnDecreeInfo_Click(object sender, RoutedEventArgs e)
         {
-            txtResult.Text = "";
             string info = "";
 
             GameAccount oGA = getSelectedAccount(true);
@@ -204,14 +291,12 @@ namespace myKing
             {
                 info = "Error reading decreeInfo:\n" + rro.msg;
             }
-            txtResult.Text = info;
+            UpdateResult(info);
 
         }
 
         private void btnBossWarSettings_Click(object sender, RoutedEventArgs e)
         {
-            txtResult.Text = "";
-
             GameAccount oGA = getSelectedAccount(true);
             if ((oGA == null) || (!herosReady(oGA, true))) return;
 
@@ -229,103 +314,30 @@ namespace myKing
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-            txtResult.Text = "";
-            MessageBox.Show("功能尚未公開");
-            //BossWarSettings Window = new BossWarSettings();
-            //Window.Owner = this;
-            //Window.Title = "神將無雙佈陣";
-            //Window.Show();
+            GameAccount oGA = getSelectedAccount(true);
+            if ((oGA == null) || (!herosReady(oGA, true))) return;
+            if ((oGA.BossWarBody == null) || (oGA.BossWarBody == ""))
+            {
+                MessageBox.Show("請先設定神將無雙的佈陣");
+                return;
+            }
+            string info = "";
+            bool warSuccess;
+            myFiddler.Startup(false);
+            warSuccess = myKingInterface.GoBossWarOnce(oGA.Session, oGA.Sid, oGA.BossWarBody, out info);
+            myFiddler.Shutdown();
+            UpdateResult(info);
         }
 
-        private void btnSaveProfile_Click(object sender, RoutedEventArgs e)
+        private void UpdateResult(string info, bool addTime = false, bool reset = false)
         {
-            txtResult.Text = "";
-            SaveProfile();
+            if (reset) txtResult.Text = "";
+            if (addTime) txtResult.Text += DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss | ");
+            txtResult.Text += info + "\n";
+            txtResult.ScrollToEnd();
         }
 
-        private void btnRestoreProfile_Click(object sender, RoutedEventArgs e)
-        {
-            RestoreProfile();
-        }
-
-
-        private void SaveProfile()
-        {
-            txtResult.Text = "";
-
-            if (gameAccounts.Count == 0) return;
-
-            foreach (GameAccount oGA in gameAccounts)
-            {
-                GameAccountProfile oGAP = gameAccountProfiles.SingleOrDefault(x => x.Account == oGA.Account);
-                if (oGAP == null)
-                {
-                    oGAP = new GameAccountProfile();
-                    oGAP.fromGameAccount(oGA);
-                    gameAccountProfiles.Add(oGAP);
-                } else
-                {
-                    oGAP.fromGameAccount(oGA);
-                }
-            }
-
-            FileStream fs = null;
-            try
-            {
-                fs = new FileStream("myKing.dat", FileMode.OpenOrCreate);
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(fs, gameAccountProfiles);
-                txtResult.Text = "資料儲存成功";
-            }
-            catch (Exception ex)
-            {
-                txtResult.Text = "Error saving data:\n" + ex.Message;
-            }
-            finally
-            {
-                if (fs != null) fs.Close();
-            }
-        }
-
-        private void RestoreProfile()
-        {
-            UpdateInfo();
-
-            gameAccountProfiles.Clear();
-
-            FileStream fs = null;
-            try
-            {
-                fs = new FileStream("myKing.dat", FileMode.Open);
-                BinaryFormatter formatter = new BinaryFormatter();
-                gameAccountProfiles = (List<GameAccountProfile>)formatter.Deserialize(fs);
-            }
-            catch (Exception ex)
-            {
-                txtResult.Text = "Error reading data:\n" + ex.Message;
-            }
-            finally
-            {
-                if (fs != null) fs.Close();
-            }
-
-
-            int updCnt = 0;
-            string updAccount = "";
-            foreach (GameAccountProfile oGAP in gameAccountProfiles)
-            {
-                GameAccount oGA = gameAccounts.SingleOrDefault(x => x.Account == oGAP.Account);
-                if (oGA != null)
-                {
-                    updCnt++;
-                    oGAP.toGameAccount(oGA);
-                    updAccount += oGA.Server + ": " + oGA.NickName + "\n";
-                }
-            }
-            refreshAccountList();
-            UpdateInfo(string.Format("資料成功讀取, 以下 {0} 個帳記更新了\n{1}", updCnt, updAccount));
-        }
-
+        
     }
 
 }

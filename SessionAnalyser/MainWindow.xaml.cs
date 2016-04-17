@@ -25,7 +25,6 @@ namespace SessionAnalyser
     {
         // string matchAction = "BossWar.enterWar";
         // string matchAction = "BossWar.sendTroop";
-        string matchAction = "BossWar.leaveWar";
 
         public MainWindow()
         {
