@@ -34,57 +34,6 @@ namespace SessionAnalyser
             FiddlerApplication.oSAZProvider = new DNZSAZProvider();
         }
 
-        private void btnLoadSession_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                 string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
-                 string sSessionFileName = sCurrentFolder + "\\a.saz";
-
-                Session[] sessions = Fiddler.Utilities.ReadSessionArchive(sSessionFileName, false);
-                if (sessions == null)
-                {
-                    txtResult.Text = "No session found";
-                } else
-                {
-                    string info = "";
-                    foreach (Session oS in sessions)
-                    {
-                        string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
-                        if (requestText.Contains("BossWar.enterWar") || requestText.Contains("BossWar.sendTroop") || requestText.Contains("BossWar.leaveWar"))
-                        {
-                            info += oS.Timers.ClientBeginRequest.ToString("hh:mm:ss") + " | ";
-                            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-                            dynamic json = Json.Decode(responseText);
-                            if (requestText.Contains("BossWar.sendTroop"))
-                            {
-                                info += "sendTroop | " + responseText;
-                            }
-                            else if (requestText.Contains("BossWar.leaveWar"))
-                            {
-                                info += "leaveWar | " + responseText;
-                            } else if (requestText.Contains("BossWar.enterWar"))
-                            {
-                                info += "enterWar | ";
-                                if (json != null)
-                                {
-                                    info += string.Format("{0} : {1}", json.sendCount, json.inspireTime);
-                                    if (json.bossInfo != null) info += string.Format(" : {0}", json.bossInfo.hpp);
-                                }
-                            }
-                            info += "\n";
-                        }
-                    }
-                    txtResult.Text = info + "\n";
-                }
-
-            } catch (Exception ex)
-            {
-                txtResult.Text = "Error:\n" + ex.Message;
-            }
-
-        }
-
         public static string CleanUpResponse(string responseText)
         {
             if (responseText == null) return null;
@@ -109,5 +58,107 @@ namespace SessionAnalyser
 
             return jsonString;
         }
+
+        private void btnLoadSession_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                 string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
+                 string sSessionFileName = sCurrentFolder + "\\a.saz";
+
+                Session[] sessions = Fiddler.Utilities.ReadSessionArchive(sSessionFileName, false);
+                if (sessions == null)
+                {
+                    txtResult.Text = "No session found";
+                } else
+                {
+
+                    string info = "";
+                    foreach (Session oS in sessions)
+                    {
+                        // info += BossWarAnalyser(oS);
+                        info += ArcheryAnalyser(oS);
+                    }
+                    txtResult.Text = info + "\n";
+                }
+
+            } catch (Exception ex)
+            {
+                txtResult.Text = "Error:\n" + ex.Message;
+            }
+
+        }
+
+        private string BossWarAnalyser(Session oS)
+        {
+            string info = "";
+            string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
+            if (requestText.Contains("BossWar.enterWar") || requestText.Contains("BossWar.sendTroop") || requestText.Contains("BossWar.leaveWar"))
+            {
+                info += oS.Timers.ClientBeginRequest.ToString("hh:mm:ss") + " | ";
+                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+                dynamic json = Json.Decode(responseText);
+                if (requestText.Contains("BossWar.sendTroop"))
+                {
+                    info += "sendTroop | " + responseText;
+                }
+                else if (requestText.Contains("BossWar.leaveWar"))
+                {
+                    info += "leaveWar | " + responseText;
+                }
+                else if (requestText.Contains("BossWar.enterWar"))
+                {
+                    info += "enterWar | ";
+                    if (json != null)
+                    {
+                        info += string.Format("{0} : {1}", json.sendCount, json.inspireTime);
+                        if (json.bossInfo != null) info += string.Format(" : {0}", json.bossInfo.hpp);
+                    }
+                }
+                info += "\n";
+            }
+            return info;
+        }
+
+        private string ArcheryAnalyser(Session oS)
+        {
+            string info = "";
+            string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
+            if (requestText.Contains("Archery.shoot") || requestText.Contains("Archery.getArcheryInfo"))
+            {
+                info += oS.Timers.ClientBeginRequest.ToString("HH:mm:ss") + " | ";
+                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+                dynamic json = Json.Decode(responseText);
+                if (requestText.Contains("Archery.getArcheryInfo"))
+                {
+                    info += "INFO | ";
+                    if ((json != null) && (json.wind != null))
+                    {
+                        info += json.wind.ToString();
+                    }
+                    else
+                    {
+                        info += "Missing";
+                    }
+                } else if (requestText.Contains("Archery.shoot"))
+                {
+                    dynamic jRequest = Json.Decode(requestText);
+                    if (jRequest != null && jRequest.body != null)
+                    {
+                        dynamic jBody = Json.Decode(jRequest.body);
+                        if (jBody != null) 
+                        info += string.Format("{0} | {1}", jBody.x, jBody.y);
+
+                        if ((json != null) && (json.x != null) && (json.y != null) && (json.ring != null) && (json.nWind != null))
+                        {
+                            info += string.Format(" | {0} | {1} | {2} | {3}", json.x, json.y, json.ring, json.nWind);
+                        }
+                    }
+                }
+                info += "\n";
+            }
+            return info;
+        }
+
     }
 }
