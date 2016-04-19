@@ -100,7 +100,30 @@ namespace aIcantwEx03
                 oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
 
                 startFiddler(false);
-                rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oIcantwSession.oRequest.headers,
+                HTTPRequestHeaders oH = new HTTPRequestHeaders();
+
+                oH.HTTPMethod = "POST";
+                oH.HTTPVersion = "HTTP/1.1";
+                byte[] rawPath = { 47, 109, 46, 100, 111 };
+                oH.RawPath = rawPath;
+                oH.RequestPath = "/m.do";
+                oH.UriScheme = "http";
+                oH.Add("Host", "kings52.icantw.com");
+                oH.Add("Connection", "keep-alive");
+                oH.Add("Content-Length", requestBodyBytes.Length.ToString());
+                oH.Add("Origin", "http://kingres.icantw.com");
+                oH.Add("X-Requested-With", " ShockwaveFlash/21.0.0.216");
+                oH.Add("User-Agent", " Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36");
+                oH.Add("Content-Type", " application/x-www-form-urlencoded");
+                oH.Add("Accept", "*.*");
+                oH.Add("Referer", "http://kingres.icantw.com/snres/loader_3691_2_40_1.swf?1/[[DYNAMIC]]/1/[[DYNAMIC]]/4");
+                oH.Add("Accept-Encoding", " gzip, deflate");
+                oH.Add("Accept-Language", " en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4,zh-CN;q=0.2");
+                oH.Add("Cookie", " _ga=GA1.2.2102237671.1451608934");
+
+                HTTPRequestHeaders oOK = oIcantwSession.oRequest.headers;
+
+                rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oH,
                                                                    requestBodyBytes, null, OnStageChangeHandler);
                 stopFiddler();
                 rro.success = true;

@@ -16,6 +16,7 @@
         </Grid>
         <Grid Grid.Row="1">
             <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="19,0,0,0" VerticalAlignment="Top" Width="75" Click="btnLoadSession_Click"/>
+            <Button x:Name="btnCompare" Content="Compare" HorizontalAlignment="Left" Margin="99,0,0,0" VerticalAlignment="Top" Width="75" Click="btnCompare_Click"/>
         </Grid>
 
     </Grid>

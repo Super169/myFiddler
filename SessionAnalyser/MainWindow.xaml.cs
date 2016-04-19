@@ -160,5 +160,65 @@ namespace SessionAnalyser
             return info;
         }
 
+        private void btnCompare_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
+                string sSessionFileNameA = sCurrentFolder + "\\a.saz";
+                string sSessionFileNameB = sCurrentFolder + "\\b.saz";
+
+                Session[] sessionsA = Fiddler.Utilities.ReadSessionArchive(sSessionFileNameA, false);
+                Session[] sessionsB = Fiddler.Utilities.ReadSessionArchive(sSessionFileNameB, false);
+                if (sessionsA == null)
+                {
+                    txtResult.Text = "Session A not found";
+                    return;
+                }
+
+                if (sessionsB == null)
+                {
+                    txtResult.Text = "Session B not found";
+                    return;
+                }
+
+                HTTPRequestHeaders ha = sessionsA[0].oRequest.headers;
+                HTTPRequestHeaders hb = sessionsB[0].oRequest.headers;
+
+                if (ha == null)
+                {
+                    txtResult.Text = "Session A has no header";
+                    return;
+                }
+
+                if (hb == null)
+                {
+                    txtResult.Text = "Session B has no header";
+                    return;
+
+                }
+
+
+                /*
+                    string jsonString = requestText;
+                    byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
+                    oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
+
+                    startFiddler(false);
+                    rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oIcantwSession.oRequest.headers,
+                                                                                   requestBodyBytes, null, OnStageChangeHandler);
+                */
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                txtResult.Text = "Error:\n" + ex.Message;
+            }
+
+
+        }
     }
 }
