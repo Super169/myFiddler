@@ -506,7 +506,9 @@ namespace myKing
 
                 // UpdateResult(String.Format("現在時間是 {0:yyyy-MM-dd HH:mm:ss}", now), true);
                 BossWarStartTime = new DateTime(BossWarDay.Year, BossWarDay.Month, BossWarDay.Day, 19, 59, 00);
+                BossWarEndTime = new DateTime(BossWarDay.Year, BossWarDay.Month, BossWarDay.Day, 20, 31, 00);
                 UpdateResult(String.Format("神將無雙掛機系統 將於 {0:yyyy-MM-dd HH:mm:ss} 開始", BossWarStartTime), true);
+                UpdateResult(String.Format("並於 {0:yyyy-MM-dd HH:mm:ss} 結束", BossWarEndTime), true);
                 TimeSpan tsDiff = BossWarStartTime - now;
                 UpdateResult(string.Format("需要等待 {0} 天 {1} 小時 {2} 分鐘",  tsDiff.Days, tsDiff.Hours, tsDiff.Minutes), true);
                 waitTime = (int)(BossWarStartTime - DateTime.Now).TotalSeconds * 1000;
