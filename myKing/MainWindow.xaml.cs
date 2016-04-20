@@ -466,7 +466,7 @@ namespace myKing
                 bossTimer.Enabled = true;
             } else
             {
-                UpdateResult("神將無雙掛機系統 完結");
+                UpdateResult("神將無雙掛機系統 完結", true);
             }
         }
 
@@ -507,6 +507,7 @@ namespace myKing
                 // UpdateResult(String.Format("現在時間是 {0:yyyy-MM-dd HH:mm:ss}", now), true);
                 BossWarStartTime = new DateTime(BossWarDay.Year, BossWarDay.Month, BossWarDay.Day, 19, 59, 00);
                 BossWarEndTime = new DateTime(BossWarDay.Year, BossWarDay.Month, BossWarDay.Day, 20, 31, 00);
+
                 UpdateResult(String.Format("神將無雙掛機系統 將於 {0:yyyy-MM-dd HH:mm:ss} 開始", BossWarStartTime), true);
                 UpdateResult(String.Format("並於 {0:yyyy-MM-dd HH:mm:ss} 結束", BossWarEndTime), true);
                 TimeSpan tsDiff = BossWarStartTime - now;
