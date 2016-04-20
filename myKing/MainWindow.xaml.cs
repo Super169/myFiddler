@@ -39,7 +39,9 @@ namespace myKing
 
         // System.Threading.Timer bossTimer;
 
-
+        DateTime BossWarStartTime = DateTime.Now;
+        DateTime BossWarEndTime = DateTime.Now;
+        
         enum GameStatus
         {
             Idle, DetectAccount, BossWarOnce, BossWar, BossWarStop
@@ -432,7 +434,7 @@ namespace myKing
 
         private void btnBossWar_Click(object sender, RoutedEventArgs e)
         {
-
+             
             if (bossTimer.Enabled)
             {
 
@@ -444,7 +446,7 @@ namespace myKing
             {
                 SetGameStatus(GameStatus.BossWar);
                 UpdateResult("自動神將 | 開始", true);
-                bossTimer.Interval = 1;
+                bossTimer.Interval = getNextTime();
                 bossTimer.Enabled = true;
             }
             /*
@@ -459,8 +461,58 @@ namespace myKing
         {
             bossTimer.Enabled = false;
             GoBossWarOnce();
-            bossTimer.Interval = 31000;
-            bossTimer.Enabled = true;
+            if (DateTime.Now < BossWarEndTime) {
+                bossTimer.Interval = 31000;
+                bossTimer.Enabled = true;
+            } else
+            {
+                UpdateResult("神將無雙掛機系統 完結");
+            }
+        }
+
+
+        double getNextTime()
+        {
+            DateTime now = DateTime.Now;
+            // now = new DateTime(2016, 4, 24, 20, 32, 0);
+            int dow = (int) now.DayOfWeek;
+            DateTime BossWarDay = now;
+            int waitTime = 0;
+            if ((dow == 5) || (dow == 0)) 
+            {
+                BossWarStartTime = new DateTime(now.Year, now.Month, now.Day, 19, 59, 00);
+                BossWarEndTime = new DateTime(now.Year, now.Month, now.Day, 20, 31, 00);
+                if (now < BossWarStartTime)
+                {
+                    UpdateResult("今晚的神將無雙尚未開始", true);
+                    BossWarDay = now.Date;
+                } else if (now > BossWarEndTime)
+                {
+                    UpdateResult("今晚的神將無雙已經完結", true);
+                    BossWarDay = now.Date.AddDays((dow == 5 ? 2 : 5));
+                }
+                else
+                {
+                    UpdateResult("神將無雙掛機系統 開始啟動", true);
+                    waitTime = 1;
+                }
+            } else
+            {
+                BossWarDay = now.Date.AddDays(dow == 6 ? 1 : (5 - dow));
+                UpdateResult("今天沒有神將, 要多等一點時間", true);
+            }
+            if (waitTime == 0)
+            {
+
+                // UpdateResult(String.Format("現在時間是 {0:yyyy-MM-dd HH:mm:ss}", now), true);
+                BossWarStartTime = new DateTime(BossWarDay.Year, BossWarDay.Month, BossWarDay.Day, 19, 59, 00);
+                UpdateResult(String.Format("神將無雙掛機系統 將於 {0:yyyy-MM-dd HH:mm:ss} 開始", BossWarStartTime), true);
+                TimeSpan tsDiff = BossWarStartTime - now;
+                UpdateResult(string.Format("需要等待 {0} 天 {1} 小時 {2} 分鐘",  tsDiff.Days, tsDiff.Hours, tsDiff.Minutes), true);
+                waitTime = (int)(BossWarStartTime - DateTime.Now).TotalSeconds * 1000;
+                UpdateResult(string.Format("開始等待 {0} ms", waitTime), true);
+            }
+            return waitTime;
         }
 
     }
