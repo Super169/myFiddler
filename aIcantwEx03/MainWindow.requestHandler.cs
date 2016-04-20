@@ -121,6 +121,12 @@ namespace aIcantwEx03
                 oH.Add("Accept-Language", " en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4,zh-CN;q=0.2");
                 oH.Add("Cookie", " _ga=GA1.2.2102237671.1451608934");
 
+
+                // Proxy information 
+                oH.Add("Proxy-Authorization", "Basic amtrbWE6UmpwdThwdGw=");
+                oH.Add("Proxy-Connection", "keep-alive");
+
+
                 HTTPRequestHeaders oOK = oIcantwSession.oRequest.headers;
 
                 rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oH,
