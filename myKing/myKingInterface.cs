@@ -291,7 +291,7 @@ namespace myKing
                 info += "FAIL | " + responseText;
                 return false;
             }
-            if (json.senCount == null)
+            if (json.sendCount == null)
             {
                 info += "FAIL | " + responseText;
                 return false;
@@ -330,7 +330,7 @@ namespace myKing
 
         public static bool GoBossWarSendTroop(Session oS, string sid, string body, out string info)
         {
-            info = GetSystemTime() + " | enterWar | ";
+            info = GetSystemTime() + " | sendTroop | ";
             if ((body == null) || (body == "")) {
                 info += "FAIL | missing troop information";
                 return false;
