@@ -15,16 +15,20 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Web.Helpers;
+using System.IO;
 
 namespace SessionAnalyser
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
         // string matchAction = "BossWar.enterWar";
         // string matchAction = "BossWar.sendTroop";
+
+        List<string> actionList = new List<string>();
 
         public MainWindow()
         {
@@ -61,6 +65,7 @@ namespace SessionAnalyser
 
         private void btnLoadSession_Click(object sender, RoutedEventArgs e)
         {
+            /*
             try
             {
                  string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
@@ -77,7 +82,8 @@ namespace SessionAnalyser
                     foreach (Session oS in sessions)
                     {
                         // info += BossWarAnalyser(oS);
-                        info += ArcheryAnalyser(oS);
+                        // info += ArcheryAnalyser(oS);
+                        info += ActionAnalyser(oS);
                     }
                     txtResult.Text = info + "\n";
                 }
@@ -86,7 +92,66 @@ namespace SessionAnalyser
             {
                 txtResult.Text = "Error:\n" + ex.Message;
             }
+            */
+            goAnalyse();
 
+        }
+
+        private void goAnalyse()
+        {
+            string[] fileEntries = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.saz");
+            foreach(string fileName in fileEntries)
+            {
+                goCheck(fileName);
+            }
+
+        }
+
+        private void goCheck(string fileName)
+        {
+            try
+            {
+                // string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
+                // string sSessionFileName = sCurrentFolder + "\\a.saz";
+
+                Session[] sessions = Fiddler.Utilities.ReadSessionArchive(fileName, false);
+                if (sessions == null)
+                {
+                }
+                else
+                {
+                    string info = "";
+                    foreach (Session oS in sessions)
+                    {
+                        info += ActionAnalyser(oS);
+                    }
+                    txtResult.Text += info + "\n";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                txtResult.Text = "Error:\n" + ex.Message;
+            }
+
+        }
+
+        private string ActionAnalyser(Session oS)
+        {
+            string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
+            try
+            {
+                dynamic json = Json.Decode(requestText);
+                string action = json["act"];
+                if (!actionList.Contains(action))
+                {
+                    actionList.Add(action);
+                    return action + "\n";
+                }
+            }
+            catch { }
+
+            return "";
         }
 
         private string BossWarAnalyser(Session oS)
