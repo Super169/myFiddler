@@ -131,7 +131,7 @@ namespace SessionAnalyser
             }
             catch (Exception ex)
             {
-                txtResult.Text = "Error:\n" + ex.Message;
+                txtResult.Text += "Error:\n" + ex.Message;
             }
 
         }
@@ -146,7 +146,7 @@ namespace SessionAnalyser
                 if (!actionList.Contains(action))
                 {
                     actionList.Add(action);
-                    return action + "\n";
+                    return action + " # " + requestText + "\n";
                 }
             }
             catch { }
