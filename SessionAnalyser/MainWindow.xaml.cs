@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Web.Helpers;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SessionAnalyser
 {
@@ -27,8 +28,7 @@ namespace SessionAnalyser
     {
         // string matchAction = "BossWar.enterWar";
         // string matchAction = "BossWar.sendTroop";
-
-        List<string> actionList = new List<string>();
+        List<MyRecord> myList = new List<MyRecord>();
 
         public MainWindow()
         {
@@ -36,75 +36,41 @@ namespace SessionAnalyser
 
             string sSAZInfo = Assembly.GetAssembly(typeof(Ionic.Zip.ZipFile)).FullName;
             FiddlerApplication.oSAZProvider = new DNZSAZProvider();
-        }
 
-        public static string CleanUpResponse(string responseText)
-        {
-            if (responseText == null) return null;
-
-            string jsonString = null;
-
-            string[] data = responseText.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (jsonString == null)
-                {
-                    // Not yet started, JSON string will start will "{", ignore all others
-                    if (data[i].StartsWith("{")) jsonString = data[i];
-                }
-                else
-                {
-                    // study studying the behavious, it seesm that the dummy row has only few characters (hexdecimal value?), but not exactly the length
-                    if (data[i].Length > 6) jsonString += data[i];
-                }
-            }
-
-            return jsonString;
+            // Load myRecord if any
+            loadData();
         }
 
         private void btnLoadSession_Click(object sender, RoutedEventArgs e)
         {
-            /*
-            try
-            {
-                 string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
-                 string sSessionFileName = sCurrentFolder + "\\a.saz";
-
-                Session[] sessions = Fiddler.Utilities.ReadSessionArchive(sSessionFileName, false);
-                if (sessions == null)
-                {
-                    txtResult.Text = "No session found";
-                } else
-                {
-
-                    string info = "";
-                    foreach (Session oS in sessions)
-                    {
-                        // info += BossWarAnalyser(oS);
-                        // info += ArcheryAnalyser(oS);
-                        info += ActionAnalyser(oS);
-                    }
-                    txtResult.Text = info + "\n";
-                }
-
-            } catch (Exception ex)
-            {
-                txtResult.Text = "Error:\n" + ex.Message;
-            }
-            */
             goAnalyse();
-
+            MessageBox.Show("Record loaded");
         }
 
         private void goAnalyse()
         {
-            string[] fileEntries = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.saz");
-            foreach(string fileName in fileEntries)
-            {
-                goCheck(fileName);
-            }
+            string sDir = Directory.GetCurrentDirectory();
+            goCheckDirectory(sDir);
+        }
 
+        private void goCheckDirectory(string sDir)
+        {
+            List<string> files = new List<String>();
+            try
+            {
+                foreach (string f in Directory.GetFiles(sDir, "*.saz"))
+                {
+                    goCheck(f);
+                }
+                foreach (string d in Directory.GetDirectories(sDir))
+                {
+                    goCheckDirectory(d);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void goCheck(string fileName)
@@ -125,7 +91,7 @@ namespace SessionAnalyser
                     {
                         info += ActionAnalyser(oS);
                     }
-                    txtResult.Text += info + "\n";
+                    if ((info != null) && (info != "")) txtResult.Text += info;
                 }
 
             }
@@ -136,154 +102,108 @@ namespace SessionAnalyser
 
         }
 
+        public static string CleanUpResponse(string responseText, int minLength = 7)
+        {
+            if (responseText == null) return null;
+
+            // No need to clearn up for short return
+            if (responseText.Length < 20 && responseText.StartsWith("{")) return responseText;
+
+            string jsonString = null;
+
+            string[] data = responseText.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (jsonString == null)
+                {
+                    // Not yet started, JSON string will start will "{", ignore all others
+                    if (data[i].StartsWith("{")) jsonString = data[i];
+                }
+                else
+                {
+                    // study studying the behavious, it seesm that the dummy row has only few characters (hexdecimal value?), but not exactly the length
+                    // The default 7 is just a rough estimate based on previous catpured packets
+                    if (data[i].Length >= minLength) jsonString += data[i];
+                }
+            }
+            return jsonString;
+        }
+
         private string ActionAnalyser(Session oS)
         {
+            string returnVal = null;
             string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
+            string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
+            responseText = CleanUpResponse(responseText);
             try
             {
                 dynamic json = Json.Decode(requestText);
+                dynamic jresponse = Json.Decode(responseText);
                 string action = json["act"];
-                if (!actionList.Contains(action))
+                string style = jresponse["style"];
+                string prompt = jresponse["prompt"];
+                if (action != null) action = action.Trim();
+                if ((action != null) && (action != ""))
                 {
-                    actionList.Add(action);
-                    return action + " # " + requestText + "\n";
+                    MyRecord rec = myList.Find(x => ((x.action == action) && (x.style == style) && (x.prompt == prompt)));
+                    if (rec == null)
+                    {
+                        myList.Add(new MyRecord()
+                        {
+                            action = action,
+                            style = style,
+                            prompt = prompt,
+                            requestBody = requestText,
+                            responseBody = responseText
+                        });
+                        returnVal = string.Format("{0} # {1} # {2} # {3}\n", action, style, prompt, requestText);
+                    }
                 }
             }
             catch { }
-
-            return "";
+            return returnVal;
         }
 
-        private string BossWarAnalyser(Session oS)
-        {
-            string info = "";
-            string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
-            if (requestText.Contains("BossWar.enterWar") || requestText.Contains("BossWar.sendTroop") || requestText.Contains("BossWar.leaveWar"))
-            {
-                info += oS.Timers.ClientBeginRequest.ToString("hh:mm:ss") + " | ";
-                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-                dynamic json = Json.Decode(responseText);
-                if (requestText.Contains("BossWar.sendTroop"))
-                {
-                    info += "sendTroop | " + responseText;
-                }
-                else if (requestText.Contains("BossWar.leaveWar"))
-                {
-                    info += "leaveWar | " + responseText;
-                }
-                else if (requestText.Contains("BossWar.enterWar"))
-                {
-                    info += "enterWar | ";
-                    if (json != null)
-                    {
-                        info += string.Format("{0} : {1}", json.sendCount, json.inspireTime);
-                        if (json.bossInfo != null) info += string.Format(" : {0}", json.bossInfo.hpp);
-                    }
-                }
-                info += "\n";
-            }
-            return info;
-        }
-
-        private string ArcheryAnalyser(Session oS)
-        {
-            string info = "";
-            string requestText = Encoding.UTF8.GetString(oS.requestBodyBytes);
-            if (requestText.Contains("Archery.shoot") || requestText.Contains("Archery.getArcheryInfo"))
-            {
-                info += oS.Timers.ClientBeginRequest.ToString("HH:mm:ss") + " | ";
-                string responseText = Encoding.UTF8.GetString(oS.responseBodyBytes);
-                dynamic json = Json.Decode(responseText);
-                if (requestText.Contains("Archery.getArcheryInfo"))
-                {
-                    info += "INFO | ";
-                    if ((json != null) && (json.wind != null))
-                    {
-                        info += json.wind.ToString();
-                    }
-                    else
-                    {
-                        info += "Missing";
-                    }
-                } else if (requestText.Contains("Archery.shoot"))
-                {
-                    dynamic jRequest = Json.Decode(requestText);
-                    if (jRequest != null && jRequest.body != null)
-                    {
-                        dynamic jBody = Json.Decode(jRequest.body);
-                        if (jBody != null) 
-                        info += string.Format("{0} | {1}", jBody.x, jBody.y);
-
-                        if ((json != null) && (json.x != null) && (json.y != null) && (json.ring != null) && (json.nWind != null))
-                        {
-                            info += string.Format(" | {0} | {1} | {2} | {3}", json.x, json.y, json.ring, json.nWind);
-                        }
-                    }
-                }
-                info += "\n";
-            }
-            return info;
-        }
-
-        private void btnCompare_Click(object sender, RoutedEventArgs e)
+        private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                string sCurrentFolder = System.IO.Directory.GetCurrentDirectory();
-                string sSessionFileNameA = sCurrentFolder + "\\a.saz";
-                string sSessionFileNameB = sCurrentFolder + "\\b.saz";
-
-                Session[] sessionsA = Fiddler.Utilities.ReadSessionArchive(sSessionFileNameA, false);
-                Session[] sessionsB = Fiddler.Utilities.ReadSessionArchive(sSessionFileNameB, false);
-                if (sessionsA == null)
-                {
-                    txtResult.Text = "Session A not found";
-                    return;
-                }
-
-                if (sessionsB == null)
-                {
-                    txtResult.Text = "Session B not found";
-                    return;
-                }
-
-                HTTPRequestHeaders ha = sessionsA[0].oRequest.headers;
-                HTTPRequestHeaders hb = sessionsB[0].oRequest.headers;
-
-                if (ha == null)
-                {
-                    txtResult.Text = "Session A has no header";
-                    return;
-                }
-
-                if (hb == null)
-                {
-                    txtResult.Text = "Session B has no header";
-                    return;
-
-                }
-
-
-                /*
-                    string jsonString = requestText;
-                    byte[] requestBodyBytes = Encoding.UTF8.GetBytes(jsonString);
-                    oIcantwSession.oRequest["Content-Length"] = requestBodyBytes.Length.ToString();
-
-                    startFiddler(false);
-                    rro.oS = FiddlerApplication.oProxy.SendRequestAndWait(oIcantwSession.oRequest.headers,
-                                                                                   requestBodyBytes, null, OnStageChangeHandler);
-                */
-
-
-
-
+                Stream stream = File.Open("data.bin", FileMode.Create);
+                BinaryFormatter bin = new BinaryFormatter();
+                bin.Serialize(stream, myList);
+                stream.Close();
+                MessageBox.Show("Record saved");
             }
-            catch (Exception ex)
+            catch { }
+        }
+
+        private void btnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            loadData();
+        }
+
+        private void loadData()
+        {
+            try
             {
-                txtResult.Text = "Error:\n" + ex.Message;
+                if (File.Exists("data.bin"))
+                {
+                    Stream stream = File.Open("data.bin", FileMode.Open);
+                    BinaryFormatter bin = new BinaryFormatter();
+                    myList = (List<MyRecord>)bin.Deserialize(stream);
+                    stream.Close();
+
+                    string data = "";
+                    foreach (MyRecord rec in myList)
+                    {
+                        data += string.Format("{0} # {1} # {2} # {3}\n", rec.action, rec.style, rec.prompt, rec.requestBody);
+                    }
+                    txtResult.Text = data;
+                    MessageBox.Show("Record loaded");
+                }
             }
-
-
+            catch { }
         }
     }
 }
