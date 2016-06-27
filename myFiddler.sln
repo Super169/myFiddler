@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "FiddlerCoreAPI\SampleApp\Demo.csproj", "{B4436616-28A2-4B98-9C39-3DA4AC95537E}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "myKing", "myKing\myKing.csproj", "{A0DD65C6-B7F0-4719-9D46-6AFE3070E296}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SessionAnalyser", "SessionAnalyser\SessionAnalyser.csproj", "{0BCD52F2-1F43-40A8-96C4-F349BE2A5BF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SazCompare", "SazCompare\SazCompare.csproj", "{94FCEDE2-C375-4F28-AA16-DB195D519460}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,14 @@ Global
 		{0BCD52F2-1F43-40A8-96C4-F349BE2A5BF5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0BCD52F2-1F43-40A8-96C4-F349BE2A5BF5}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
 		{0BCD52F2-1F43-40A8-96C4-F349BE2A5BF5}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release Signed|Any CPU.ActiveCfg = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release Signed|Any CPU.Build.0 = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release-Plus|Any CPU.ActiveCfg = Release|Any CPU
+		{94FCEDE2-C375-4F28-AA16-DB195D519460}.Release-Plus|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
