@@ -12,11 +12,12 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBox x:Name="txtResult" Margin="0,0,0,0" TextWrapping="Wrap" Text=""/>
+            <TextBox x:Name="txtResult" Margin="0,0,0,0" TextWrapping="Wrap" Text="" VerticalScrollBarVisibility="Auto"/>
         </Grid>
         <Grid Grid.Row="1">
             <Button x:Name="btnLoadSession" Content="Load Session" HorizontalAlignment="Left" Margin="19,0,0,0" VerticalAlignment="Top" Width="75" Click="btnLoadSession_Click"/>
-            <Button x:Name="btnCompare" Content="Compare" HorizontalAlignment="Left" Margin="99,0,0,0" VerticalAlignment="Top" Width="75" Click="btnCompare_Click"/>
+            <Button x:Name="btnLoad" Content="Load" Margin="0,2,100,5" Click="btnLoad_Click" HorizontalAlignment="Right" Width="80"/>
+            <Button x:Name="btnSave" Content="Save" Margin="0,2,10,5" Click="btnSave_Click" HorizontalAlignment="Right" Width="80"/>
         </Grid>
 
     </Grid>
